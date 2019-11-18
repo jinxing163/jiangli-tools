@@ -1,0 +1,28 @@
+ver-2.0
+*app层和web层代码
+
+ver-1.3.1
+*现在只要输入表名就万事大吉
+
+ver-1.3
+*优化生成结果自动拷贝到项目路径体验
+
+
+ver-1.2
+*增加方法
+--count 分页时用到的方法
+--listByDto  分页的中间方法
+--listByDtoPaged 分页，返回包装结果
+*自动拷贝到项目路径
+
+
+ver-1.1
+*建表的条件  创建人,修改人必须 -> 可选
+*其它必须字段 —— 主键 CREATE_TIME UPDATE_TIME CREATE_PERSON DELETE_PERSON IS_DELETED
+*增加方法
+--save 保存
+--delete 删除
+--update 更新
+--get 获取单个
+--listOfIds  通过id-list获取list列表
+--listAll  不限条件获取list列表

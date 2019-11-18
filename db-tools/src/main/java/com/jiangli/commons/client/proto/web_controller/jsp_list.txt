@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ include file="/WEB-INF/jsp/operation/common/taglib.jsp" %>
+
+<html>
+<script>
+    var _page = "index"
+</script>
+<head>
+    <title>企业知识实验室_${description}_知室</title>
+    <link href="http://assets.zhihuishu.com/icon/zs-favicon.ico" rel="shortcut icon"/>
+    <script src="http://assets.zhihuishu.com/jquery/1.8.3/jquery.min.js"></script>
+
+<%--    上传组件--%>
+    <%@include file="/WEB-INF/jsp/course/coursecontent/public-upload-css.jsp" %>
+    <%@include file="/WEB-INF/jsp/course/coursecontent/public-upload-js.jsp" %>
+
+<%--    必备css--%>
+    <link rel="stylesheet" type="text/css" href="${basePath}/assets/thirdPlugin/layui/2.2.5/css/layui.css?v=${cssJsVersion}"/>
+
+    <%--    看着引--%>
+    <link rel="stylesheet" type="text/css" href="${basePath}/assets/course/css/courseManage/courseManageCommon.css?v=${cssJsVersion}"/>
+    <link rel="stylesheet" type="text/css" href="${basePath}/assets/operation/css/propagation/excellentdialy/dailyRegular.css?v=${cssJsVersion}"/>
+<%--    <link rel="stylesheet" type="text/css" href="${basePath}/assets/operation/css/propagation/banner/bannerOpeartion.css?v=${cssJsVersion}"/>--%>
+    <link rel="stylesheet" type="text/css" href="${basePath}/assets/crm/deliveryCommon.css?v=${cssJsVersion}"/>
+    <link rel="stylesheet" type="text/css" href="${basePath}/assets/dailyCourse/dailyCourse.css?v=${cssJsVersion}"/>
+
+    <script>
+    </script>
+    <style>
+        .aa{
+
+        }
+        .newBanner-box{
+            display: none;
+            padding: 20px;
+            padding-left: 0;
+        }
+        .layui-form-label{
+            word-break: break-all;
+        }
+
+    </style>
+</head>
+<body class="layui-layout-body layout-body-custom">
+<div class="layui-layout layui-layout-admin">
+    <%@include file="/WEB-INF/jsp/common/global/header.jsp" %>
+    <%@include file="../common/lefter.jsp" %>
+
+    <!-- main  start-->
+    <div class="layui-body">
+        <div class="new-courseMag courseMag-custom-main" style="width: 98%">
+            <div class="new-breadcrumb breadcrumb-container clearfix">
+                <span class="layui-breadcrumb fl" lay-separator="/">
+                    <a href="">xxx</a>
+                    <a><cite>${description}</cite></a>
+                </span>
+                <span id="addBtn" class="layui-btn layui-btn-normal fr add-course-btn" style="margin-top: 7px">新增</span>
+            </div>
+            <div class="layui-tab" lay-filter="bannerTab">
+                <div class="layui-tab-content">
+
+                    <form id="queryForm">
+                        <%--                    搜索栏--%>
+                        <div class="dailyRegular-wrap clearfix">
+
+                            <ul class="layui-form clearfix">
+
+                                ${searchBody}
+
+                                <li class="fr layui-form-item">
+                                    <span id="refreshBtn" class="layui-btn layui-btn-normal  fr">搜索</span>
+                                    <span id="resetBtn" class="layui-btn layui-btn-primary  fr">重置</span>
+                                </li>
+                            </ul>
+
+                        </div>
+                    </form>
+
+                    <div class="dailyRegular-table-wrap clearfix" style="width: 98%">
+                        <table class="daily-item-table layui-table" lay-skin="line">
+                            <colgroup>
+                                <col width="210">
+                                <col width="">
+                                <col width="">
+                            </colgroup>
+                            <thead>
+                            <tr class="th-line" >
+
+                                ${tableHead}
+
+                                <th class="">
+                                    <div>操作</div>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody id="bodyContainer">
+
+                            </tbody>
+                        </table>
+
+                        <div class="clearfix">
+                            <div class="fr" id="pageDivId"></div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- main  end-->
+    <%@include file="/WEB-INF/jsp/operation/common/footer.jsp" %>
+</div>
+
+<!-- 新增 pop-->
+<form id="createForm">
+    <div class="newBanner-box layui-form clearfix boxSizing" id="crudDialog">
+        <input type="hidden" name="id" />
+
+                ${dialogRow}
+
+    </div>
+</form>
+<!-- 新增 pop-->
+
+<%--必备--%>
+<script src="${basePath}/assets/thirdPlugin/layui/2.2.5/layui.js" type="text/javascript" charset="utf-8"></script>
+<script src="${basePath}/assets/common/js/global/head.js?v=${cssJsVersion}" type="text/javascript" charset="utf-8"></script>
+<script src="${basePath}/assets/course/js/content/sortable/Sortable.js?v=${cssJsVersion}"></script>
+
+
+<%--配套 查询、选择交互--%>
+<script src="${basePath}/assets/addclear/addclear.js?v=${cssJsVersion}" type="text/javascript" charset="utf-8"></script>
+<script src="${basePath}/assets/common/js/tableQuery.js?v=${cssJsVersion}" type="text/javascript" charset="utf-8"></script>
+<script src="${basePath}/assets/common/js/layRadio.js?v=${cssJsVersion}" type="text/javascript" charset="utf-8"></script>
+<script src="${basePath}/assets/common/js/layCheckBox.js?v=${cssJsVersion}" type="text/javascript" charset="utf-8"></script>
+
+
+<%--验证、消息、表单--%>
+<script src="${basePath}/assets/common/js/validator.js?v=${cssJsVersion}" type="text/javascript" charset="utf-8"></script>
+<script src="${basePath}/assets/account/js/Message.js?v=${cssJsVersion}" type="text/javascript" charset="utf-8"></script>
+<script src="${basePath}/assets/crm/js/deliveryCommon.js?v=${cssJsVersion}" type="text/javascript" charset="utf-8"></script>
+<script src="${basePath}/assets/course/js/content/upload.js?v=${cssJsVersion}" type="text/javascript" charset="utf-8"></script>
+
+<%--点击选择--%>
+<script src="${basePath}/assets/${lastPkgName}/${path}/${javaName}SELECTOR.js?v=${cssJsVersion}" type="text/javascript" charset="utf-8"></script>
+
+<%--主方法--%>
+<script src="${basePath}/assets/${lastPkgName}/${path}/${javaName}CRUD.js?v=${cssJsVersion}" type="text/javascript" charset="utf-8"></script>
+
+
+<script>
+    $(function () {
+        //筛选框
+        ${javaName}Selector({
+            clicker:getObjOfForm("queryForm","${firstInputFieldName}"),
+            checkType:1,//radio
+            // checkType:2,//checkbox
+            selected:function ($trList, list) {
+                console.log($trList);
+                console.log(list);
+            }
+        });
+
+        //增删改查
+        new ${javaName}CRUD ({
+            bodyId:"bodyContainer",
+            add_clicker:$('#addBtn'),
+            refresh_clicker:$('#refreshBtn'),
+            reset_clicker:$('#resetBtn'),
+        });
+    });
+</script>
+
+</body>
+</html>

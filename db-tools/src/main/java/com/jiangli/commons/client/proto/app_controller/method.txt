@@ -1,0 +1,35 @@
+    private void injectInfo(List<TblWhiteListOpenDto> records) {
+        for (TblWhiteListOpenDto record : records) {
+            //record.setCreateTime();
+        }
+
+        //查企业
+        PagedRequester.<TblWhiteListOpenDto, Long, CompanyDto>processBatchList(
+                20,
+                () -> records,
+                TblWhiteListOpenDto::getCompanyId,
+                longs -> {
+                    List<Integer> collect = longs.stream().map(d -> d.intValue()).collect(Collectors.toList());
+                    return companyRemoteService.listCompanyByIds(collect);
+                },
+                d -> d.getId().longValue(),
+                (company, dto) -> {
+                    dto.setCompanyName(company.getName());
+                }
+        );
+
+        //查用户
+        PagedRequester.<TblWhiteListOpenDto, Long, UserQueryDto>processBatchList(
+                20,
+                () -> records,
+                TblWhiteListOpenDto::getUserId,
+                longs -> {
+                    return userRemoteService.list(longs);
+                },
+                d -> d.getId(),
+                (user, dto) -> {
+                    dto.setUser(user);
+                }
+        );
+
+    }

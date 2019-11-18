@@ -1,0 +1,20 @@
+com.zhihuishu.aries.company.openapi.ICompanyOpenService;
+import com.zhihuishu.aries.company.openapi.dto.CompanyDto;
+import com.zhihuishu.aries.user.openapi.UserOpenService;
+import com.zhihuishu.aries.user.openapi.dto.UserQueryDto;
+import com.zhihuishu.aries.web.common.controller.GlobalController;
+import com.zhihuishu.aries.web.utils.PagedRequester;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.stream.Collectors
+

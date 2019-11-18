@@ -1,0 +1,269 @@
+function TblWhiteListSelector(opt) {
+    var $clicker = opt.clicker;//绑定点击事件的jquery对象
+
+    var checkType = opt.checkType;//1:radio 2:checkbox
+    var selectedCb = opt.selected;//回调函数
+    var moduleCn = opt.title || '${description}';
+    var moduleName = "${javaName}";
+    var relaModulePath = '/${path}';
+
+    //初始化分页参数
+    var PageData = {
+        "pageSize": 10,
+        "pageIndex": 1
+    }
+
+    //inner opt
+    var hnd = new InnerClass(opt);
+
+    //function
+    //新增报告点击弹窗
+    if ($clicker) {
+        $clicker.click(function () {
+            hnd.openDialog();
+        });
+    } else {
+        hnd.openDialog();
+    }
+
+    //内部类
+    function InnerClass(opt) {
+        var singleDivId = "_div_"+moduleName+"Dialog";
+        var bodyId = moduleName+"_ListBody";
+        var pageDivId = moduleName+`_page`;
+        var queryFormId = moduleName+`_queryForm`;
+        var checkAllBoxId = moduleName+`_checkAll`;
+        var radioName = moduleName+`_radio`;
+
+        //init
+        initDiv();
+
+        // var singleCheckUserDiv = ;
+        function initDiv() {
+            //init createDiv
+            if ($(`#${singleDivId}`).size() == 0) {
+                var one = {};
+
+                var checkAllTh = ""
+                if (checkType == 1 ) {
+                    checkAllTh = `<th class=""> </th>`
+                } else if (checkType == 2 ) {
+                    checkAllTh = `<th id="${checkAllBoxId}" class=""> <input lay-skin="primary" type="checkbox"   class="layui-input" /> </th>`
+                }
+
+                $("body").append($(`
+    <div class="newBanner-box layui-form clearfix boxSizing" id="${singleDivId}" style="display: none;">
+
+    <div class="dailyRegular-wrap clearfix" >
+        <ul class="layui-form clearfix">
+            <form id="${queryFormId}" onsubmit="return false;">
+
+                ${searchBody}
+
+                <li class="fr layui-form-item">
+                    <span  class="layui-btn layui-btn-normal  fr search_btn">搜索</span>
+                    <span  class="layui-btn layui-btn-primary  fr reset_btn">重置</span>
+                </li>
+                </form>
+            </ul>
+    </div>
+
+    <div class="dailyRegular-wrap" >
+        <table class="layui-table layui-form" lay-skin="line">
+            <thead>
+            <tr>
+                   ${checkAllTh}
+
+                ${tableHead}
+            </tr>
+            </thead>
+            <tbody id="${bodyId}">
+
+            </tbody>
+        </table>
+
+         <div class="clearfix">
+            <div class="fr" id="${pageDivId}"></div>
+        </div>
+    </div>
+</div>`));
+
+                //    bind events
+                $("#"+singleDivId).find(".search_btn").click(function () {
+                    refreshList()
+                });
+                $("#"+singleDivId).find(".reset_btn").click(function () {
+                    clearOrInjectForm(queryFormId)
+
+                    PageData.pageIndex = 1;
+                    refreshList()
+                });
+
+                //扩展行点击
+                $("#"+bodyId).layCheckBox({allSelector:"#"+checkAllBoxId});
+                $("#"+bodyId).layRadio({});
+
+                //open
+                refreshUI()
+            }
+        }
+
+        function deleteTr(dto) {
+        }
+
+        function refreshUI() {
+            layui.use(['layer', 'form'], function () {
+                layer = layui.layer;
+                var form = layui.form;
+
+                form.render("checkbox")
+                form.render("radio")
+            });
+        }
+
+        function refreshList(cb) {
+            var dt = getFormData(queryFormId);
+            dt.pageIndex = PageData.pageIndex - 1;
+            dt.pageSize = PageData.pageSize;
+
+            $.ajax({
+                url: basePath + relaModulePath + "/doQueryList",
+                type: "POST",
+                data: dt,
+                beforeSend: function () {
+                    $('#'+bodyId).html('<tr><td style="text-align: center;" colspan="99">数据加载中...</td></tr>');
+                },
+                success: function (obj) {
+                    var data = obj.records;
+
+                    var checkTr = ""
+                    if (checkType == 1 ) {
+                        checkTr = ` <td>
+    <div class="minWidth80"><input lay-skin="primary" type="radio" class="layui-input" name="${radioName}"/></div>
+</td> `
+                    }else if (checkType == 2 ) {
+                        checkTr = ` <td>
+    <div class="minWidth80"><input lay-skin="primary" type="checkbox" class="layui-input" /></div>
+</td> `
+                    }
+
+                    appendEleData(bodyId, data, function (one) {
+                        one.userDto = one.userDto || {};
+
+                        var $str = $(`
+                    <tr>
+                    ${checkTr}
+
+                    ${tableData}
+
+                    </tr>`);
+                        $str.data("_data", one);
+
+                        //删除
+                        $str.find(".deleteTr").data("_data", one);
+                        $str.find(".deleteTr").click(function () {
+                            var dt = $(this).data("_data");
+                            deleteTr(dt);
+                        });
+
+                        return $str;
+                    });
+
+
+                    //分页
+                    layui.use(['laypage', 'layer'], function () {
+                        var laypage = layui.laypage;
+                        laypage.render({
+                            elem: pageDivId
+                            , count: obj.totalRecords
+                            , curr: PageData.pageIndex
+                            , limit: PageData.pageSize
+                            , theme: '#1890ff'
+                            , layout: ['count', 'prev', 'page', 'next']
+                            , jump: function (obj, first) {
+                                if (!first) {
+                                    var pageIndex = obj.curr;
+                                    PageData.pageSize = obj.limit;
+                                    PageData.pageIndex = pageIndex;
+                                    refreshList();
+                                }
+                            }
+                        });
+                    });
+
+                    //render
+                    refreshUI();
+
+                    if (cb) {
+                        cb();
+                    }
+                }
+            });
+        }
+
+
+        function tryInvokeCb($trList,cb,eMsg) {
+            if (!$trList || $trList.length == 0) {
+                Message.errorAuto(eMsg);
+                return false;
+            }
+
+            if (cb) {
+                var dataList = [];
+                $trList.each(function (idx,ele) {
+                    dataList.push($(ele).data("_data"));
+                });
+                cb($trList,dataList);
+            }
+
+            return true;
+        }
+
+        function openDialog() {
+            refreshUI();
+
+            //重置为第一页
+            PageData.pageIndex=1;
+
+            //清除条件框数据
+            clearOrInjectForm(queryFormId);
+
+            refreshList(function () {
+                layui.use(['layer', 'form'], function () {
+                    console.log($(`#${singleDivId}`));
+
+                    layer.open({
+                        title: [moduleCn, 'font-weight:bold'],
+                        type: 1,
+                        content: $(`#${singleDivId}`),
+                        area: ['950px', '500px'],
+                        btn: ["确定", "关闭"],
+                        btnAlign: "c"
+                        , yes: function (index) {
+
+                            if (checkType == 1 ) {
+                                var arr = $("#"+bodyId).layRadio("getSelected");
+                                console.log(arr);
+                                if (tryInvokeCb(arr,selectedCb,'请选择一条数据...')) {
+                                    layer.close(index);
+                                }
+                            }else if (checkType == 2 ) {
+                                var arr = $("#"+bodyId).layCheckBox("getSelected");
+                                console.log(arr);
+                                if (tryInvokeCb(arr,selectedCb,'请选择至少一条数据...')) {
+                                    layer.close(index);
+                                }
+                            } else {
+                                layer.close(index);
+                            }
+                        }
+                    });
+                });
+            });
+        }
+
+        return {
+            openDialog
+        }
+    }
+}

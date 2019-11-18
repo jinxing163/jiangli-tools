@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>com.jiangli</groupId>
+		<artifactId>tools</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+    <packaging>jar</packaging>
+
+    <name>junit-extension</name>
+    <groupId>com.jiangli</groupId>
+    <artifactId>junit-extension</artifactId>
+    <!-- 1.0.2 基础版-->
+    <!-- 1.0.3 加入线程 显示优化-->
+    <version>1.0.3</version>
+
+
+    <distributionManagement>
+        <repository>
+            <id>thirdparty</id>
+            <name>thirdparty</name>
+            <url>http://maven.i.zhihuishu.com:8081/nexus/content/repositories/thirdparty/</url>
+        </repository>
+    </distributionManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.jiangli</groupId>
+            <artifactId>commons</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+    </build>
+</project>

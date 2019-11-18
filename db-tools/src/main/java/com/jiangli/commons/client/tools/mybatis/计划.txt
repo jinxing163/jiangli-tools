@@ -1,0 +1,6 @@
+saveOrUpdate 保存或更新dto
+saveBatch 批量保存
+updateBatch 批量更新
+deleteBatch 批量删除
+
+save返回id

@@ -1,0 +1,17 @@
+com.zhihuishu.aries.api.GenericController;
+import com.zhihuishu.aries.api.ResultWrapper;
+import com.zhihuishu.aries.remote.CompanyRemoteService;
+import com.zhihuishu.aries.remote.UserRemoteService;
+import com.zhihuishu.aries.user.openapi.dto.UserQueryDto;
+import com.zhihuishu.aries.utils.PagedRequester;
+import com.zhihuishu.toolkit.log.MDCInfoBuilder;
+import com.zhihuishu.toolkit.log.Organization;
+import com.zhihuishu.toolkit.user.UserIdHashHelper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.stream.Collectors
