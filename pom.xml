@@ -39,7 +39,7 @@
         <cas-client.version>3.3.3</cas-client.version>
         <shiro.version>1.2.4</shiro.version>
         <poi.version>3.14</poi.version>
-        <activemq.version>5.13.2</activemq.version>
+        <activemq.version>5.15.10</activemq.version>
     </properties>
 
     <repositories>
