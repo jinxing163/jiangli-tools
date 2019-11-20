@@ -1,6 +1,8 @@
 package com.jiangli.doc.mybatis
 
 import com.jiangli.commons.FileUtil
+import com.jiangli.commons.NameUtil.getCamelSplitName
+import com.jiangli.commons.PathUtil
 import com.jiangli.commons.client.config.PathMap
 import com.jiangli.commons.client.generator.*
 import com.jiangli.commons.client.methodcore.MethodImplUtil
@@ -8,8 +10,6 @@ import com.jiangli.commons.client.model.MethodImplType
 import com.jiangli.commons.client.model.NOT_INCLUDE_METHOD
 import com.jiangli.commons.client.model.queryFieldList
 import com.jiangli.commons.client.utils.DbBaseTool
-import com.jiangli.commons.NameUtil.getCamelSplitName
-import com.jiangli.commons.PathUtil
 import com.jiangli.commons.client.utils.Util
 import java.io.File
 import java.sql.DriverManager
@@ -28,7 +28,7 @@ fun main(args: Array<String>) {
 //    val TBL_NAME = "TBL_COMMON_CATEGORY"
 //    val TBL_NAME = "TBL_COMMON_CATEGORY_ITEMS"
 //    val TBL_NAME = "TBL_COMPANY"
-    val TBL_NAME = "TBL_WHITE_LIST"
+    val TBL_NAME = "TBL_APPLY_OPERATOR"
 //    val TBL_NAME = "TBL_MENU"
 //    val TBL_NAME = "TBL_USER"
 
