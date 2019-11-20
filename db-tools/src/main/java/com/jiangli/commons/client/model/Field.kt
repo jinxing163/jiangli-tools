@@ -40,7 +40,7 @@ data class JavaField(val columnName: String,val columType: String) {
     var fieldClsImport: String?=null //import
     var commands: MutableList<Command> = mutableListOf()
     lateinit var remarkName: String  //用来前端展示的名字 一般为中文
-
+    var generateStr: Boolean=false //是否生成前端展示用的字段 一般时间戳转中文，类型转中文会用到
 
     override fun toString(): String {
         return "JavaField(columnName='$columnName', columType='$columType', initVal=$initVal, isPk=$isPk, remark='$remark', fieldName='$fieldName', fieldCls='$fieldCls', nullable=$nullable, defaultValue='$defaultValue', fieldClsImport=$fieldClsImport)"
@@ -213,9 +213,17 @@ fun queryFieldList(DB_URL: String, DATABASE: String, TBL_NAME: String): MutableL
 
 fun parseCommands(javaField: JavaField) {
     val remark = javaField.remark
-    val remarkName = untilFirstSymbol(remark," ","：",":",",","，","（","(","【","[")
+
+//    默认截取备注前面部分字符作为显示文字
+    val remarkName = untilFirstSymbol(remark)
     javaField.remarkName = remarkName
 
+//    使用默认的数据库字段名
+    if (javaField.remarkName.isBlank()) {
+        javaField.remarkName = javaField.columnName
+    }
+
+//    通过注释解析出命令list
     val groupValues = Regex("##.*?##").findAll(remark)
     groupValues.forEach {
         var cmds = it.groupValues[0]
@@ -223,12 +231,18 @@ fun parseCommands(javaField: JavaField) {
 
         val split = cmds.split(" ")
 
-        if (split.size == 0) {
-            javaField.commands.add(NameCommand(cmds))
+        if (split.size <= 1) {
+//            javaField.commands.add(NameCommand(cmds))
         } else {
-            val cmd = split[0]
+            val cmd = split[0].toUpperCase()
 
-            if (cmd.toUpperCase().equals("SELECT")) {
+//            设置名字
+            if (cmd.equals("N")) {
+                javaField.commands.add(NameCommand(split[1]))
+            }
+
+//            下拉框
+            if (cmd.equals("SELECT")) {
                 val element = SelectCommand(cmd)
 
                 (1..split.lastIndex).forEach {
@@ -237,11 +251,20 @@ fun parseCommands(javaField: JavaField) {
                     element.list.add(SelectOption(t,n))
                 }
 
+//                需要生成中文字段
+                javaField.generateStr = true
+
                 javaField.commands.add(element)
             }
 
         }
 
+//        命名命令直接执行
+        javaField.commands.forEach {
+            if (it is NameCommand) {
+                javaField.remarkName = it.name
+            }
+        }
 //        println(cmds)
         //        println(it.groupValues[0])
     }

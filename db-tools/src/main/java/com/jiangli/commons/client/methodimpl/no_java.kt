@@ -23,9 +23,9 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
         var s = generateStringBodyOfField(commonInputFields){
            """
                     <li class="fl layui-form-item">
-                        <span class="layui-form-label">${it.columnName}：</span>
+                        <span class="layui-form-label">${it.remarkName}：</span>
                         <div class="layui-input-block">
-                            <input class="layui-input"  name="${it.fieldName}" placeholder="请输入 ${it.columnName}" type="text">
+                            <input class="layui-input"  name="${it.fieldName}" placeholder="请输入 ${it.remarkName}" type="text">
                         </div>
                     </li>
             """.trimIndent()
@@ -36,7 +36,7 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
         s = generateStringBodyOfField(commonShowFields){
             """
                                 <th class="">
-                                    <div>${it.columnName}</div>
+                                    <div>${it.remarkName}</div>
                                 </th>
             """.trimIndent()
         }
@@ -46,9 +46,9 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
         s = generateStringBodyOfField(commonInputFields){
             """
                                 <li class="layui-form-item ">
-                                    <span class="layui-form-label">${if(shouldInputFieldValue(it)) "<em class=\"start-em\">*</em>" else ""} ${it.columnName}：</span>
+                                    <span class="layui-form-label">${if(shouldInputFieldValue(it)) "<em class=\"start-em\">*</em>" else ""} ${it.remarkName}：</span>
                                     <div class="layui-input-block">
-                                        <input class="layui-input" name="${it.fieldName}" placeholder="请输入 ${it.columnName}" type="text">
+                                        <input class="layui-input" name="${it.fieldName}" placeholder="请输入 ${it.remarkName}" type="text">
                                         <div class="error-tips"></div>
                                     </div>
                                 </li>
@@ -88,7 +88,7 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
                                 type: "text",
                                 name: "${it.fieldName}",
                                 whenEmpty: function (${'$'}obj) {
-                                    commonError(${'$'}obj, "请输入 ${it.columnName}");
+                                    commonError(${'$'}obj, "请输入 ${it.remarkName}");
                                 },
                                 clear: commonClear
                             }
@@ -127,9 +127,9 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
         var s = generateStringBodyOfField(commonInputFields){
             """
                     <li class="fl layui-form-item">
-                        <span class="layui-form-label">${it.columnName}：</span>
+                        <span class="layui-form-label">${it.remarkName}：</span>
                         <div class="layui-input-block">
-                            <input class="layui-input"  name="${it.fieldName}" placeholder="请输入 ${it.columnName}" type="text">
+                            <input class="layui-input"  name="${it.fieldName}" placeholder="请输入 ${it.remarkName}" type="text">
                         </div>
                     </li>
 
@@ -142,7 +142,7 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
         s = generateStringBodyOfField(commonShowFields){
             """
                                 <th class="">
-                                    <div>${it.columnName}</div>
+                                    <div>${it.remarkName}</div>
                                 </th>
             """.trimIndent()
         }
