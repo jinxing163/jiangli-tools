@@ -1,8 +1,8 @@
 package com.jiangli.commons.client.generator
 
-import com.jiangli.doc.mybatis.SPACE
 import com.jiangli.commons.client.model.JavaField
 import com.jiangli.commons.client.model.dbFieldsExists
+import com.jiangli.doc.mybatis.SPACE
 
 /**
  *
@@ -37,22 +37,30 @@ fun generateMapperXml(tableName:String,pkg:String,javaName:String,fields:List<Ja
     val pageConList = StringBuilder()
     val max_idx =   fields.filter { !it.isPk }.lastIndex
 
+//    排序，过滤
     fields.sortedBy {mustInput(it)}.filter { !it.isPk } .forEachIndexed { idx, it ->
         var suffix = if(idx == max_idx) "" else ","
 
         //        println("$idx / ${fields.lastIndex}")
 
-        if(mustInput(it)){
-            saveColList.append("\r\n$SPACE$SPACE$SPACE${it.columnName}${suffix} ")
-            saveValList.append("\r\n$SPACE$SPACE$SPACE#{${it.fieldName}}${suffix} ")
-        } else {
-            saveColList.append("\r\n$SPACE$SPACE$SPACE<if test=\"${it.fieldName} != null\">${it.columnName}${suffix} </if>")
-            saveValList.append("\r\n$SPACE$SPACE$SPACE<if test=\"${it.fieldName} != null\">#{${it.fieldName}}${suffix} </if>")
+//        特殊情况
+        if (it.fieldName != "isDeleted") {
+            if(mustInput(it)){
+                saveColList.append("\r\n$SPACE$SPACE$SPACE${it.columnName}${suffix} ")
+                saveValList.append("\r\n$SPACE$SPACE$SPACE#{${it.fieldName}}${suffix} ")
+            } else {
+                saveColList.append("\r\n$SPACE$SPACE$SPACE<if test=\"${it.fieldName} != null\">${it.columnName}${suffix} </if>")
+                saveValList.append("\r\n$SPACE$SPACE$SPACE<if test=\"${it.fieldName} != null\">#{${it.fieldName}}${suffix} </if>")
+            }
         }
 
-        pageConList.append("\r\n$SPACE$SPACE<if test=\"dto.${it.fieldName} != null\">AND ${it.columnName} = #{dto.${it.fieldName}} </if>")
 
+        pageConList.append("\r\n$SPACE$SPACE<if test=\"dto.${it.fieldName} != null\">AND ${it.columnName} = #{dto.${it.fieldName}} </if>")
     }
+
+//      直接赋值
+    saveColList.append("\r\n$SPACE$SPACE$SPACE,IS_DELETED")
+    saveValList.append("\r\n$SPACE$SPACE$SPACE,0")
 
     //    println(fields.sortedBy {mustInput(it)})
     //    println(fields)

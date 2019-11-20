@@ -1,9 +1,11 @@
 package com.jiangli.commons.client.model
 
-import com.jiangli.commons.client.generator.colNameToCamel
-import com.jiangli.commons.client.generator.generatePrefixMethod
 import com.jiangli.commons.DateUtil
 import com.jiangli.commons.Rnd
+import com.jiangli.commons.client.generator.colNameToCamel
+import com.jiangli.commons.client.generator.generatePrefixMethod
+import com.jiangli.commons.client.generator.splitTextByCommonSymbol
+import com.jiangli.commons.client.generator.untilFirstSymbol
 import java.sql.DriverManager
 
 /**
@@ -36,6 +38,9 @@ data class JavaField(val columnName: String,val columType: String) {
     var nullable: Boolean=false
     var defaultValue: String?=null
     var fieldClsImport: String?=null //import
+    var commands: MutableList<Command> = mutableListOf()
+    lateinit var remarkName: String  //用来前端展示的名字 一般为中文
+
 
     override fun toString(): String {
         return "JavaField(columnName='$columnName', columType='$columType', initVal=$initVal, isPk=$isPk, remark='$remark', fieldName='$fieldName', fieldCls='$fieldCls', nullable=$nullable, defaultValue='$defaultValue', fieldClsImport=$fieldClsImport)"
@@ -43,7 +48,7 @@ data class JavaField(val columnName: String,val columType: String) {
 
 }
 
-fun calcField( f:JavaField) {
+fun calcFieldInfo(f:JavaField) {
     val columType = f.columType
 
     f.fieldCls = when (columType.trim()) {
@@ -186,7 +191,13 @@ fun queryFieldList(DB_URL: String, DATABASE: String, TBL_NAME: String): MutableL
         javaField.nullable = nullable == 1
         javaField.defaultValue = columnDef
 
-        calcField(javaField)
+//        替换换行符
+        javaField.remark = javaField.remark.replace("\r\n", " ")
+        javaField.remark = javaField.remark.trim()
+
+        parseCommands(javaField)
+
+        calcFieldInfo(javaField)
         list.add(javaField)
     }
 
@@ -199,6 +210,46 @@ fun queryFieldList(DB_URL: String, DATABASE: String, TBL_NAME: String): MutableL
     list.filter { it.columnName==pkColName }.forEach { it.isPk=true }
     return list
 }
+
+fun parseCommands(javaField: JavaField) {
+    val remark = javaField.remark
+    val remarkName = untilFirstSymbol(remark," ","：",":",",","，","（","(","【","[")
+    javaField.remarkName = remarkName
+
+    val groupValues = Regex("##.*?##").findAll(remark)
+    groupValues.forEach {
+        var cmds = it.groupValues[0]
+        cmds  = cmds.replace("##","").trim()
+
+        val split = cmds.split(" ")
+
+        if (split.size == 0) {
+            javaField.commands.add(NameCommand(cmds))
+        } else {
+            val cmd = split[0]
+
+            if (cmd.toUpperCase().equals("SELECT")) {
+                val element = SelectCommand(cmd)
+
+                (1..split.lastIndex).forEach {
+                    val (t, n) = splitTextByCommonSymbol(split[it].trim())
+
+                    element.list.add(SelectOption(t,n))
+                }
+
+                javaField.commands.add(element)
+            }
+
+        }
+
+//        println(cmds)
+        //        println(it.groupValues[0])
+    }
+
+
+}
+
+
 
 
 fun generateStringBodyOfField(fieldExclude: List<JavaField>,split:String? = "", function: (JavaField) -> String): String {

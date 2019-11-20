@@ -66,12 +66,12 @@ function ${javaName}CRUD(opt) {
             success: function () {
             },
             yes: function (index) {
+                var dt = getFormData(createform);
                 if (!validator.validate()) {
+                    console.log('验证不通过...');
+                    console.log(dt);
                     return;
                 }
-
-                var dt = getFormData(createform);
-                console.log(dt);
 
                 // return;
                 if (mode == MODE_EDIT) {

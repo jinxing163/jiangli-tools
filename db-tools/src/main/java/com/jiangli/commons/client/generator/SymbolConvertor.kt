@@ -70,3 +70,27 @@ fun resolveBodyBySpring(body:String,map:Map<out Any,out Any>): String {
     return realBody
 }
 
+fun untilFirstSymbol(remark: String, vararg strs:String): String {
+    strs.forEach {
+        var c = it
+        val indexOfFirst = remark.indexOfFirst { c == it.toString() }
+
+
+        if (indexOfFirst > 0) {
+            return remark.substring(0,indexOfFirst)
+        }
+    }
+
+    return remark
+}
+
+val splitCommonSymbol = listOf(",","，",":","：","-","——")
+fun splitTextByCommonSymbol(remark: String): Pair<String,String> {
+    splitCommonSymbol.forEach {
+        val split = remark.split(it)
+        if (split.size > 1) {
+            return split[0] to split[1]
+        }
+    }
+    return "-1" to remark
+}
