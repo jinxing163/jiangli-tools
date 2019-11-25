@@ -311,6 +311,15 @@ fun generateMethodNameOfSelect(javaField:JavaField): String {
     return "typeMapOf"+ nameToMethod(javaField.fieldName)
 }
 
+fun getDisplayNameOfField(field:JavaField):String {
+    return field.fieldName + "Str"
+}
+fun getDisplayOrFieldName(field:JavaField):String {
+    if (field.generateStr) {
+        return getDisplayNameOfField(field)
+    }
+    return field.fieldName
+}
 
 fun generateStringBodyOfField(fieldExclude: List<JavaField>,split:String? = "", function: (JavaField) -> String): String {
     var ret = ""

@@ -7,6 +7,7 @@ import com.jiangli.commons.client.generator.nameToCamel
 import com.jiangli.commons.client.methodcore.MethodImplUtil
 import com.jiangli.commons.client.model.JavaField
 import com.jiangli.commons.client.model.MethodImplType
+import com.jiangli.commons.client.model.getDisplayNameOfField
 import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileInputStream
@@ -49,15 +50,7 @@ fun annotationField(anno:String,clsName: String,va:String? = null):String {
     return "$anno\r\n${SPACE}private $clsName $varName"
 }
 
-fun getDisplayNameOfField(field:JavaField):String {
-    return field.fieldName + "Str"
-}
-fun getDisplayOrFieldName(field:JavaField):String {
-    if (field.generateStr) {
-        return getDisplayNameOfField(field)
-    }
-    return field.fieldName
-}
+
 
 fun generateCls(pkg:String, desc:String, clsName:String, fields:List<JavaField>?, extraImports:List<String>?= arrayListOf(), extraField:List<String>?= arrayListOf(), implClses:List<String>?= arrayListOf(), superClsName:String?=null, extraAnnos:List<String>?= arrayListOf(), extraMethods:List<String>?= arrayListOf()):String {
     val fieldList =  StringBuilder()

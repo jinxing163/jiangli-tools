@@ -117,13 +117,7 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
 
 
         //        列表数据
-        s = generateStringBodyOfField(commonShowFields) {
-            """
-                         <td>
-                            <div class="minWidth80">${'$'}{one.${it.fieldName} || ""}</div>
-                        </td>
-            """.trimIndent()
-        }
+        s = geTableData(commonShowFields)
         finalmap.put("tableData",s)
 
 
@@ -168,18 +162,29 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
         finalmap.put("tableHead",s)
 
         //        列表数据
-        s = generateStringBodyOfField(commonShowFields) {
-            """
-                         <td>
-                            <div class="minWidth80">${'$'}{one.${it.fieldName} || ""}</div>
-                        </td>
-            """.trimIndent()
-        }
+        s = geTableData(commonShowFields)
         finalmap.put("tableData",s)
 
 
         val body = getProtoFileBody("web_controller\\js_selector.txt")
         return  resolveBodyBySpring(body,finalmap)
+    }
+
+    private fun geTableData(commonShowFields: List<JavaField>): String {
+        return generateStringBodyOfField(commonShowFields) {
+            var valueField = it.fieldName
+
+            //            select型
+            if (it.commands.any { it is SelectCommand }) {
+                valueField = getDisplayNameOfField(it)
+            }
+
+            """
+                             <td>
+                                <div class="minWidth80">${'$'}{one.${valueField} || ""}</div>
+                            </td>
+                """.trimIndent()
+        }
     }
 }
 

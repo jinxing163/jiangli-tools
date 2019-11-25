@@ -3,7 +3,6 @@ package com.jiangli.commons.client.methodimpl
 import com.jiangli.commons.client.generator.nameToMethod
 import com.jiangli.commons.client.methodcore.MethodImplUtil
 import com.jiangli.commons.client.model.*
-import com.jiangli.doc.mybatis.getDisplayNameOfField
 
 var transToOpen = object : MMethod("${'$'}{space}", "transToOpen", "转换", "list", """
 ${'$'}{_this_indent}/**
