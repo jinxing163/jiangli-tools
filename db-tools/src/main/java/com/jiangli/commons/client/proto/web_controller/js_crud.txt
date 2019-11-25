@@ -9,6 +9,9 @@ function ${javaName}CRUD(opt) {
     var moduleCn = '${description}';
     var relaModulePath = '/${path}';
 
+    ${selectFieldConfigJs}
+
+
     //初始化分页参数
     var PageData = {
         "pageSize": 10,
@@ -86,7 +89,7 @@ function ${javaName}CRUD(opt) {
 
                             layer.close(index);
 
-                            refreshList();
+                            refreshList(true);
                         }, error: function (a) {
                             Message.error(a.responseText);
                         }
@@ -103,7 +106,7 @@ function ${javaName}CRUD(opt) {
 
                             layer.close(index);
 
-                            refreshList();
+                            refreshList(true);
 
                         }, error: function (a) {
                             Message.error(a.responseText);

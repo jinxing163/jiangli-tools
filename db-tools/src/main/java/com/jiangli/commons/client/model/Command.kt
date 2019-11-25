@@ -15,5 +15,5 @@ data class NameCommand(override val name:String):Command(name){
 
 data class SelectOption(val type:String,val name:String)
 data class SelectCommand(override val name:String):Command(name){
-    var list:MutableList<SelectOption> = mutableListOf()
+    var cmd_list:MutableList<SelectOption> = mutableListOf()
 }

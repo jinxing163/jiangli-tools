@@ -75,6 +75,25 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
 
         var finalmap = cloneMap(map)
 
+//      下拉框选项配置js
+        var s = generateStringBodyOfField(
+                fields.filter {
+                    it.commands.any { it is SelectCommand }
+                },"\r\n"){
+
+            val methodName = generateMethodNameOfSelect(it)
+
+            """
+        //读取 ${it.remarkName} 下拉框选项
+        injectSelectOptions(basePath + relaModulePath +"/$methodName",function () {
+            return [getObjOfForm(queryForm,"${it.fieldName}"),getObjOfForm(createform,"${it.fieldName}")];
+        },function () {
+            return [true,false]
+        })
+            """
+        }
+        finalmap.put("selectFieldConfigJs",s)
+
         //        搜索栏
         val pkFieldColumn = fields.getPkFieldColumn()
         val commonInputFields = fieldExcludeByColumnName(fields, pkFieldColumn, "IS_DELETED", "CREATE_TIME", "UPDATE_TIME", "CREATE_PERSON", "DELETE_PERSON")
@@ -82,7 +101,7 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
 
 
         //        验证配置
-        var s = generateStringBodyOfField(fieldExcludeByColumnName(fields.filter { shouldInputFieldValue(it) },pkFieldColumn),",") {
+         s = generateStringBodyOfField(fieldExcludeByColumnName(fields.filter { shouldInputFieldValue(it) },pkFieldColumn),",") {
             """
                                 {
                                 type: "text",

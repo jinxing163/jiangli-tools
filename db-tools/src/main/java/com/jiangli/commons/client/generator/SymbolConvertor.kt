@@ -86,6 +86,8 @@ fun untilFirstSymbol(remark: String, vararg strs:String? = firstCommonSymbol): S
 
 
 val splitCommonSymbol = listOf(",","，",":","：","-","——")
+
+//0：否  -> 0 to 否
 fun splitTextByCommonSymbol(remark: String): Pair<String,String> {
     splitCommonSymbol.forEach {
         val split = remark.split(it)
@@ -96,6 +98,17 @@ fun splitTextByCommonSymbol(remark: String): Pair<String,String> {
     return "-1" to remark
 }
 
+//0否  -> 0 to 否
+fun splitTextByFirstNumber(remark: String): Pair<String,String> {
+    val groupValues = Regex("^\\d+").findAll(remark)
+    groupValues.forEach {
+        var n = it.groupValues[0]
+
+        return n to remark.substring(n.length)
+    }
+
+    return "-1" to remark
+}
 
 fun main(args: Array<String>) {
     println(untilFirstSymbol("目标类型（1自定义菜单）"))

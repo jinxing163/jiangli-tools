@@ -1,10 +1,10 @@
 package com.jiangli.commons.client.methodcore
 
+import com.jiangli.commons.ClazzUtils
 import com.jiangli.commons.client.generator.colNameToCamel
 import com.jiangli.commons.client.generator.generatePrefixMethod
 import com.jiangli.commons.client.generator.resolveBodyBySpring
 import com.jiangli.commons.client.model.*
-import com.jiangli.commons.ClazzUtils
 import org.springframework.util.PropertyPlaceholderHelper
 import java.util.*
 
@@ -15,6 +15,10 @@ import java.util.*
  * @date 2019/11/5 13:35
  */
 object MethodImplUtil{
+    val IMPL_XML = 0
+    val IMPL_SERVICE = 1
+    val IMPL_OPEN_SERVICE = 2
+
     val list = mutableListOf<MMethod>()
     val list_order = listOf("i","s","g","u","d","c","l") // 首字母优先级
     fun getOrder(s:String): Int {

@@ -2,10 +2,9 @@ package com.jiangli.commons.client.model
 
 import com.jiangli.commons.DateUtil
 import com.jiangli.commons.Rnd
-import com.jiangli.commons.client.generator.colNameToCamel
-import com.jiangli.commons.client.generator.generatePrefixMethod
-import com.jiangli.commons.client.generator.splitTextByCommonSymbol
-import com.jiangli.commons.client.generator.untilFirstSymbol
+import com.jiangli.commons.client.generator.*
+import com.jiangli.commons.client.methodcore.MethodImplUtil
+import com.jiangli.commons.client.methodimpl.typeMapProto
 import java.sql.DriverManager
 
 /**
@@ -44,6 +43,23 @@ data class JavaField(val columnName: String,val columType: String) {
 
     override fun toString(): String {
         return "JavaField(columnName='$columnName', columType='$columType', initVal=$initVal, isPk=$isPk, remark='$remark', fieldName='$fieldName', fieldCls='$fieldCls', nullable=$nullable, defaultValue='$defaultValue', fieldClsImport=$fieldClsImport)"
+    }
+
+    fun copy():JavaField {
+        val ret  = JavaField(columnName,columType)
+
+        ret.initVal = this.initVal
+        ret.isPk = false
+        ret.remark = this.remark
+        ret.fieldName = this.fieldName
+        ret.fieldCls = this.fieldCls
+        ret.nullable = this.nullable
+        ret.defaultValue = this.defaultValue
+        ret.fieldClsImport = this.fieldClsImport
+        ret.remarkName = this.remarkName
+        ret.generateStr = this.generateStr
+
+        return ret
     }
 
 }
@@ -195,10 +211,11 @@ fun queryFieldList(DB_URL: String, DATABASE: String, TBL_NAME: String): MutableL
         javaField.remark = javaField.remark.replace("\r\n", " ")
         javaField.remark = javaField.remark.trim()
 
-        parseCommands(javaField)
-
         calcFieldInfo(javaField)
         list.add(javaField)
+
+//        解析命令
+        parseCommands(javaField)
     }
 
     //表主键
@@ -229,7 +246,7 @@ fun parseCommands(javaField: JavaField) {
         var cmds = it.groupValues[0]
         cmds  = cmds.replace("##","").trim()
 
-        val split = cmds.split(" ")
+        val split = cmds.split("\\s+".toRegex())
 
         if (split.size <= 1) {
 //            javaField.commands.add(NameCommand(cmds))
@@ -246,9 +263,15 @@ fun parseCommands(javaField: JavaField) {
                 val element = SelectCommand(cmd)
 
                 (1..split.lastIndex).forEach {
-                    val (t, n) = splitTextByCommonSymbol(split[it].trim())
+                    val cmdArgOne = split[it].trim()
+                    var pair = splitTextByCommonSymbol(cmdArgOne)
 
-                    element.list.add(SelectOption(t,n))
+                    //                    按符号解析失败
+                    if (pair.second == cmdArgOne) {
+                        pair = splitTextByFirstNumber(cmdArgOne)
+                    }
+
+                    element.cmd_list.add(SelectOption(pair.first,pair.second))
                 }
 
 //                需要生成中文字段
@@ -269,10 +292,24 @@ fun parseCommands(javaField: JavaField) {
         //        println(it.groupValues[0])
     }
 
+    processAfterJavaFieldInitialized(javaField)
+}
+
+fun processAfterJavaFieldInitialized(javaField: JavaField) {
+//    select
+
+    javaField.commands.forEach {
+
+        if (it is SelectCommand) {
+            MethodImplUtil.add(typeMapProto(javaField,generateMethodNameOfSelect(javaField) ))
+        }
+    }
 
 }
 
-
+fun generateMethodNameOfSelect(javaField:JavaField): String {
+    return "typeMapOf"+ nameToMethod(javaField.fieldName)
+}
 
 
 fun generateStringBodyOfField(fieldExclude: List<JavaField>,split:String? = "", function: (JavaField) -> String): String {
