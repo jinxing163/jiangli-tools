@@ -1,4 +1,4 @@
-function TblWhiteListSelector(opt) {
+function ${javaName}Selector(opt) {
     var $clicker = opt.clicker;//绑定点击事件的jquery对象
 
     var checkType = opt.checkType;//1:radio 2:checkbox
@@ -87,6 +87,8 @@ function TblWhiteListSelector(opt) {
         </div>
     </div>
 </div>`));
+
+                ${selectFieldConfigJs}
 
                 //    bind events
                 $("#"+singleDivId).find(".search_btn").click(function () {

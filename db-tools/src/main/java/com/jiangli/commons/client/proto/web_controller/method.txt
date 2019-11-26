@@ -1,14 +1,16 @@
-    private void injectInfo(List<TblWhiteListOpenDto> list) {
+    private void injectInfo(List<${objType}> list) {
+        /**
+
         if (list != null) {
-            for (TblWhiteListOpenDto one : list) {
+            for (${objType} one : list) {
                 //one.setCreateTime();
             }
 
             //查企业
-            PagedRequester.<TblWhiteListOpenDto, Long, CompanyDto>processBatchList(
+            PagedRequester.<${objType}, Long, CompanyDto>processBatchList(
                     20,
                     () -> list,
-                    TblWhiteListOpenDto::getCompanyId,
+                    ${objType}::getCompanyId,
                     longs -> {
                         List<Integer> collect = longs.stream().map(d -> d.intValue()).collect(Collectors.toList());
                         return companyOpenService.listCompanyByIds(collect);
@@ -20,10 +22,10 @@
             );
 
             //查用户
-            PagedRequester.<TblWhiteListOpenDto, Long, UserQueryDto>processBatchList(
+            PagedRequester.<${objType}, Long, UserQueryDto>processBatchList(
                     20,
                     () -> list,
-                    TblWhiteListOpenDto::getUserId,
+                    ${objType}::getUserId,
                     longs -> {
                         return userOpenService.list(longs);
                     },
@@ -33,4 +35,7 @@
                     }
             );
         }
+
+        **/
+
     }

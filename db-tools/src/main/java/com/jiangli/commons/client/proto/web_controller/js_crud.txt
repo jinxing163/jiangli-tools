@@ -139,7 +139,7 @@ function ${javaName}CRUD(opt) {
 
                             layer.close(index);
 
-                            refreshList();
+                            refreshList(true);
                         }
                     });
                 }

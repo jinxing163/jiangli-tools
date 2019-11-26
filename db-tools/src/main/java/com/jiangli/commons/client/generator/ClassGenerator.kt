@@ -5,9 +5,7 @@ import com.jiangli.commons.PathUtil
 import com.jiangli.commons.client.generator.concatPath
 import com.jiangli.commons.client.generator.nameToCamel
 import com.jiangli.commons.client.methodcore.MethodImplUtil
-import com.jiangli.commons.client.model.JavaField
-import com.jiangli.commons.client.model.MethodImplType
-import com.jiangli.commons.client.model.getDisplayNameOfField
+import com.jiangli.commons.client.model.*
 import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileInputStream
@@ -67,6 +65,7 @@ fun generateCls(pkg:String, desc:String, clsName:String, fields:List<JavaField>?
         fieldsIncludeSynthetic.addAll(fields)
     }
 
+//    生成所有字段
     fields?.forEach {
         if (it.generateStr) {
             val copy = it.copy()
@@ -76,13 +75,21 @@ fun generateCls(pkg:String, desc:String, clsName:String, fields:List<JavaField>?
             copy.remark = copy.remarkName+" 显示文字"
             fieldsIncludeSynthetic.add(copy)
         }
+
+        if (it.commands.any { it is QueryInCommand }) {
+            val copy = it.copy()
+            copy.fieldName = getQueryInOfField(copy)
+            copy.fieldCls = "List<${it.fieldCls}>"
+            copy.fieldClsImport = "java.util.List"
+            copy.generateStr = false
+            copy.remark = copy.remarkName+" 批量查询字段"
+            fieldsIncludeSynthetic.add(copy)
+        }
     }
+
 
     //import
     extraImports?.forEach { totalImport.add(it) }
-    totalImport.forEach {
-        importList.append("import $it;\r\n")
-    }
 
     //注解
     extraAnnos?.forEach {
@@ -172,6 +179,10 @@ fun generateCls(pkg:String, desc:String, clsName:String, fields:List<JavaField>?
         }
     }
 
+    totalImport.forEach {
+        importList.append("import $it;\r\n")
+    }
+
     return """
 package $pkg;
 $importList
@@ -187,14 +198,6 @@ $methodsList
 """
 }
 
-fun appendComment(sb:StringBuilder,txt:String) {
-    sb.append("${SPACE}/**\r\n")
-    sb.append("${SPACE} * $txt\r\n")
-    sb.append("${SPACE} */\r\n")
-}
-fun appendEnter(sb:StringBuilder) {
-    sb.append("${SPACE}\r\n")
-}
 
 fun generateInterface(pkg:String, desc:String, clsName:String, useWrap:Boolean?=false, objName:String, extraImports:List<String>?= arrayListOf(), extraAnnos:List<String>?= arrayListOf(), implClses:List<String>?= arrayListOf(), methodCtrl:MutableMap< Any, Any>?= mutableMapOf()):String {
     val annoList =  StringBuilder()

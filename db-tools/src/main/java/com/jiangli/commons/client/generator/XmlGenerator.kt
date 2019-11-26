@@ -1,7 +1,9 @@
 package com.jiangli.commons.client.generator
 
 import com.jiangli.commons.client.model.JavaField
+import com.jiangli.commons.client.model.QueryInCommand
 import com.jiangli.commons.client.model.dbFieldsExists
+import com.jiangli.commons.client.model.getQueryInOfField
 import com.jiangli.doc.mybatis.SPACE
 
 /**
@@ -37,8 +39,9 @@ fun generateMapperXml(tableName:String,pkg:String,javaName:String,fields:List<Ja
     val pageConList = StringBuilder()
     val max_idx =   fields.filter { !it.isPk }.lastIndex
 
-//    排序，过滤
-    fields.sortedBy {mustInput(it)}.filter { !it.isPk } .forEachIndexed { idx, it ->
+//    保存、修改字段
+    val sortedFields = fields.sortedBy { mustInput(it) }
+    sortedFields.filter { !it.isPk } .forEachIndexed { idx, it ->
         var suffix = if(idx == max_idx) "" else ","
 
         //        println("$idx / ${fields.lastIndex}")
@@ -53,14 +56,37 @@ fun generateMapperXml(tableName:String,pkg:String,javaName:String,fields:List<Ja
                 saveValList.append("\r\n$SPACE$SPACE$SPACE<if test=\"${it.fieldName} != null\">#{${it.fieldName}}${suffix} </if>")
             }
         }
-
-
-        pageConList.append("\r\n$SPACE$SPACE<if test=\"dto.${it.fieldName} != null\">AND ${it.columnName} = #{dto.${it.fieldName}} </if>")
     }
 
+//    条件查询字段
+    sortedFields .forEachIndexed { idx, it ->
+        var extraCondition = ""
+
+        if (it.fieldCls == "String") {
+            extraCondition = "and dto.${it.fieldName} != ''"
+        }
+
+        pageConList.append("\r\n$SPACE$SPACE<if test=\"dto.${it.fieldName} != null $extraCondition \">AND ${it.columnName} = #{dto.${it.fieldName}} </if>")
+
+        //        QUERY_IN
+        if (it.commands.any { it is QueryInCommand }) {
+            val queryInOfField = getQueryInOfField(it)
+
+            pageConList.append("""
+
+        <if test="dto.${queryInOfField} != null and dto.${queryInOfField}.size > 0">AND ${it.columnName} IN
+             <foreach collection="dto.${queryInOfField}" index="index" item="item"
+                     open="(" separator="," close=")">
+                #{item}
+             </foreach>
+        </if>""".trimMargin())
+        }
+    }
+
+
 //      直接赋值
-    saveColList.append("\r\n$SPACE$SPACE$SPACE,IS_DELETED")
-    saveValList.append("\r\n$SPACE$SPACE$SPACE,0")
+    saveColList.append("\r\n$SPACE$SPACE$SPACE IS_DELETED")
+    saveValList.append("\r\n$SPACE$SPACE$SPACE 0")
 
     //    println(fields.sortedBy {mustInput(it)})
     //    println(fields)

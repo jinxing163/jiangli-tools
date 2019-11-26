@@ -180,7 +180,7 @@ ${'$'}{space}}"""
 
         return """{
         try {
-            PageRecords<TblWhiteListOpenDto> rs = $serviceName.listByDtoPaged(dto, pageIndex, pageSize);
+            PageRecords<${'$'}{objType}> rs = $serviceName.listByDtoPaged(dto, pageIndex, pageSize);
 
             injectInfo(rs.getRecords());
 

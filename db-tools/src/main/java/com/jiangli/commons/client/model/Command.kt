@@ -9,7 +9,10 @@ package com.jiangli.commons.client.model
 open  class Command(open val name:String){
 
 }
-data class NameCommand(override val name:String):Command(name){
+data class NameCommand(override val name:String, val arg:String):Command(name){
+
+}
+data class QueryInCommand(override val name:String):Command(name){
 
 }
 

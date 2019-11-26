@@ -20,16 +20,7 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
         val commonInputFields = fieldExcludeByColumnName(fields, pkFieldColumn, "IS_DELETED", "CREATE_TIME", "UPDATE_TIME", "CREATE_PERSON", "DELETE_PERSON")
         val commonShowFields = fieldExcludeByColumnName(fields, "IS_DELETED")
 
-        var s = generateStringBodyOfField(commonInputFields){
-           """
-                    <li class="fl layui-form-item">
-                        <span class="layui-form-label">${it.remarkName}：</span>
-                        <div class="layui-input-block">
-                            <input class="layui-input"  name="${it.fieldName}" placeholder="请输入 ${it.remarkName}" type="text">
-                        </div>
-                    </li>
-            """.trimIndent()
-        }
+        var s = geSearchBody(commonInputFields)
         finalmap.put("searchBody",s)
 
 //        列表头
@@ -48,7 +39,7 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
                                 <li class="layui-form-item ">
                                     <span class="layui-form-label">${if(shouldInputFieldValue(it)) "<em class=\"start-em\">*</em>" else ""} ${it.remarkName}：</span>
                                     <div class="layui-input-block">
-                                        <input class="layui-input" name="${it.fieldName}" placeholder="请输入 ${it.remarkName}" type="text">
+                                        ${geInputRow(it)}
                                         <div class="error-tips"></div>
                                     </div>
                                 </li>
@@ -57,11 +48,13 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
         finalmap.put("dialogRow",s)
 
 
-        finalmap.put("firstInputFieldName",commonInputFields[0].fieldName)
+        finalmap.put("firstInputFieldName",commonInputFields.first { it.commands.isEmpty() }.fieldName)
 
         val body = getProtoFileBody("web_controller\\jsp_list.txt")
         return  resolveBodyBySpring(body,finalmap)
     }
+
+
 
     private fun cloneMap(map: MutableMap<Any, Any>): MutableMap<Any, Any> {
         var finalmap = mutableMapOf<Any, Any>()
@@ -137,17 +130,7 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
 
 
         //        搜索头
-        var s = generateStringBodyOfField(commonInputFields){
-            """
-                    <li class="fl layui-form-item">
-                        <span class="layui-form-label">${it.remarkName}：</span>
-                        <div class="layui-input-block">
-                            <input class="layui-input"  name="${it.fieldName}" placeholder="请输入 ${it.remarkName}" type="text">
-                        </div>
-                    </li>
-
-            """.trimIndent()
-        }
+        var s = geSearchBody(commonInputFields)
         finalmap.put("searchBody",s)
 
 
@@ -161,6 +144,26 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
         }
         finalmap.put("tableHead",s)
 
+
+        //      下拉框选项配置js
+        s = generateStringBodyOfField(
+                fields.filter {
+                    it.commands.any { it is SelectCommand }
+                },"\r\n"){
+
+            val methodName = generateMethodNameOfSelect(it)
+
+            """
+        //读取 ${it.remarkName} 下拉框选项
+        injectSelectOptions(basePath + relaModulePath +"/$methodName",function () {
+            return [getObjOfForm(queryFormId,"${it.fieldName}")];
+        },function () {
+            return [true]
+        })
+            """
+        }
+        finalmap.put("selectFieldConfigJs",s)
+
         //        列表数据
         s = geTableData(commonShowFields)
         finalmap.put("tableData",s)
@@ -168,6 +171,33 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
 
         val body = getProtoFileBody("web_controller\\js_selector.txt")
         return  resolveBodyBySpring(body,finalmap)
+    }
+
+    private fun geInputRow(it: JavaField): String {
+        var inputStr = """<input class="layui-input"  name="${it.fieldName}" placeholder="请输入 ${it.remarkName}" type="text">"""
+        if (it.commands.any { it is SelectCommand }) {
+            inputStr = """
+                            <select name="${it.fieldName}">
+                            </select>
+                    """.trimIndent()
+        }
+        return inputStr
+    }
+
+    private fun geSearchBody(commonInputFields: List<JavaField>): String {
+        var s = generateStringBodyOfField(commonInputFields) {
+            var inputStr = geInputRow(it)
+
+            """
+                        <li class="fl layui-form-item">
+                            <span class="layui-form-label">${it.remarkName}：</span>
+                            <div class="layui-input-block">
+                                $inputStr
+                            </div>
+                        </li>
+                """.trimIndent()
+        }
+        return s
     }
 
     private fun geTableData(commonShowFields: List<JavaField>): String {

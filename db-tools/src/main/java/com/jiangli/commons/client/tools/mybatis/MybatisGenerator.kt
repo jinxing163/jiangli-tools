@@ -24,7 +24,8 @@ fun main(args: Array<String>) {
     val DB_URL = "jdbc:mysql://192.168.222.8:3306?user=root&password=ablejava"
 
 //    val TBL_NAME = "TBL_COMPANY_SHARE_STU"
-    val TBL_NAME = "TBL_WHITE_LIST"
+//    val TBL_NAME = "TBL_WHITE_LIST"
+    val TBL_NAME = "TBL_COMMON_CATEGORY_ITEMS"
 //    val TBL_NAME = "TBL_MENU"
 //    val TBL_NAME = "TBL_USER"
 
@@ -35,9 +36,9 @@ fun main(args: Array<String>) {
 
     //     * 配置正确的aries-server项目后，生成的java、sql文件会自动拷贝至相应项目路径
     //     * 配置不正确也没关系，在本项目的target/sql_client_tools能找到生成文件，手动拷贝到项目路径即可
-        val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-server"
+//        val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-server"
 //        val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-erp-server"
-//    val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-server12312"
+    val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-server12312"
     //    val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-live-api-server"
     //    val ARIES_SERVER_SRC_PATH = "C:\\projects\\org-server"
     //////////////////////////////////////////////
@@ -543,8 +544,8 @@ fun main(args: Array<String>) {
                     , pend(
                     mutableListOf()
                     , MethodImplUtil.resolveEx(webControllerImplMap, MethodImplType.aries_controller,list)
-                    ,getProtoFileBody("web_controller\\method.txt")
-            )
+                    , resolveBodyBySpring(getProtoFileBody("web_controller\\method.txt"),webControllerImplMap)
+                    )
             ), OUTPUTPATH
             , "web"
             , "aries"

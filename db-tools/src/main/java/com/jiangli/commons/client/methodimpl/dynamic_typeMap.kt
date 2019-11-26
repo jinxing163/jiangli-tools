@@ -10,15 +10,18 @@ open class typeMapProto(val javaField: JavaField, override var name: String?) : 
 ${'$'}{_this_indent}/**
 ${'$'}{_this_indent}* ${javaField.remarkName} ${'$'}{_this_nameCN}
 ${'$'}{_this_indent}*/${'$'}{annotation}
-${'$'}{_this_indent}${'$'}{scope} Map<${javaField.fieldCls},String> ${name}()${'$'}{impl.${name}:{}}
+${'$'}{_this_signature}${'$'}{impl.${name}:{}}
 """, NOT_REGISTER) {
 
     override fun inf(fields: MutableList<JavaField>, map: MutableMap<Any, Any>): String {
+        signature = "${'$'}{_this_indent}${'$'}{scope} Map<${javaField.fieldCls},String> ${name}()"
         return super.inf(fields, map)
     }
 
     override fun impl(fields: MutableList<JavaField>, map: MutableMap<Any, Any>, dtoClsName: String, serviceName: String): String {
         super.impl(fields, map, dtoClsName, serviceName)
+
+        signature = "${'$'}{_this_indent}${'$'}{scope} Map<${javaField.fieldCls},String> ${name}()"
 
         val implType = map["implType"].toString().toInt()
 
@@ -40,7 +43,7 @@ ${'$'}{space}${'$'}{space}return ret;
 ${'$'}{space}}""".trimIndent()
         } else if (implType == MethodImplUtil.IMPL_OPEN_SERVICE) {
             return """{
-${'$'}{space}${'$'}{space}return $serviceName.typeMapOfTargetType();
+${'$'}{space}${'$'}{space}return $serviceName.$name();
 ${'$'}{space}}""".trimIndent()
         } else {
             return "{}"
@@ -51,6 +54,7 @@ ${'$'}{space}}""".trimIndent()
     override fun aries_controller(fields: MutableList<JavaField>, map: MutableMap<Any, Any>, dtoClsName: String, serviceName: String): String {
         super.aries_controller(fields, map, dtoClsName, serviceName)
         signature = """${'$'}{_this_indent}${'$'}{scope} ResponseEntity ${name}()"""
+
         map.put("annotation", "\r\n${'$'}{space}@RequestMapping(path = \"/${name}\")")
 
         return """{
