@@ -27,6 +27,7 @@ object PathMap{
         repoToPkgMap.put("db_aries_base_live","com.zhishi.live.datasource")
         repoToPkgMap.put("db_aries_class_tools","com.zhihuishu.aries.chat.datasource")
         repoToPkgMap.put("db_aries_survey","com.zhishi.aries.survey")
+        repoToPkgMap.put("db_aries_log","com.zhishi.aries.log")
 
     }
 
