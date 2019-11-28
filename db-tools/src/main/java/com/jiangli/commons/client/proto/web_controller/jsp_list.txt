@@ -71,6 +71,8 @@
                                 <li class="fr layui-form-item">
                                     <span id="refreshBtn" class="layui-btn layui-btn-normal  fr">搜索</span>
                                     <span id="resetBtn" class="layui-btn layui-btn-primary  fr">重置</span>
+
+                                    ${sortBtn}
                                 </li>
                             </ul>
 
@@ -78,7 +80,7 @@
                     </form>
 
                     <div class="dailyRegular-table-wrap clearfix" style="width: 98%">
-                        <table class="daily-item-table layui-table" lay-skin="line">
+                        <table class="daily-item-table layui-table"  view-mode="1" lay-skin="line">
                             <colgroup>
                                 <col width="210">
                                 <col width="">
@@ -99,7 +101,10 @@
                             </tbody>
                         </table>
 
-                        <div class="clearfix">
+                        <div id="sortCrudBody" class="clearfix" style="width: 88%;margin: auto;" view-mode="2">
+                        </div>
+
+                        <div class="clearfix"  view-mode="1">
                             <div class="fr" id="pageDivId"></div>
                         </div>
                     </div>
@@ -170,6 +175,7 @@
             add_clicker:$('#addBtn'),
             refresh_clicker:$('#refreshBtn'),
             reset_clicker:$('#resetBtn'),
+            sort_clicker:$('#sortBtn'),
         });
     });
 </script>

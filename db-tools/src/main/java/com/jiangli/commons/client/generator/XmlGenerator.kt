@@ -42,7 +42,8 @@ fun generateMapperXml(tableName:String,pkg:String,javaName:String,fields:List<Ja
 //    保存、修改字段
     val sortedFields = fields.sortedBy { mustInput(it) }
     sortedFields.filter { !it.isPk } .forEachIndexed { idx, it ->
-        var suffix = if(idx == max_idx) "" else ","
+        var suffix =  ","
+//        var suffix = if(idx == max_idx) "" else ","
 
         //        println("$idx / ${fields.lastIndex}")
 

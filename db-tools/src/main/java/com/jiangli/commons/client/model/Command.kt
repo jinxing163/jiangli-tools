@@ -15,6 +15,9 @@ data class NameCommand(override val name:String, val arg:String):Command(name){
 data class QueryInCommand(override val name:String):Command(name){
 
 }
+data class SortCommand(override val name:String):Command(name){
+
+}
 
 data class SelectOption(val type:String,val name:String)
 data class SelectCommand(override val name:String):Command(name){

@@ -33,6 +33,12 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
         }
         finalmap.put("tableHead",s)
 
+        //        排序按钮
+        s = if(fields.hasCommand(SortCommand::class)){
+            """<span id="sortBtn" class="layui-btn layui-btn-primary  fr">排序</span>"""
+        } else ""
+        finalmap.put("sortBtn",s)
+
 //        弹框
         s = generateStringBodyOfField(commonInputFields){
             """
@@ -88,6 +94,7 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
         finalmap.put("selectFieldConfigJs",s)
 
         //        搜索栏
+        val pkFieldName = fields.getPkFieldName()
         val pkFieldColumn = fields.getPkFieldColumn()
         val commonInputFields = fieldExcludeByColumnName(fields, pkFieldColumn, "IS_DELETED", "CREATE_TIME", "UPDATE_TIME", "CREATE_PERSON", "DELETE_PERSON")
         val commonShowFields = fieldExcludeByColumnName(fields, "IS_DELETED")
@@ -113,10 +120,23 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
         s = geTableData(commonShowFields)
         finalmap.put("tableData",s)
 
+        //        排序显示
+        s = generateStringBodyOfField(commonShowFields.filter {it.fieldCls=="String" },"+ \" / \" +") {
+            var valueField = getRealFieldName(it)
+
+            """one.$valueField""".trimIndent()
+        }
+        if (s.isBlank()) {
+            s = "one.$pkFieldName"
+        }
+        finalmap.put("sortDisplay","${'$'}{$s}")
+
 
         val body = getProtoFileBody("web_controller\\js_crud.txt")
         return  resolveBodyBySpring(body,finalmap)
     }
+
+
 
     override fun aries_selector_js(fields: MutableList<JavaField>, map: MutableMap<Any, Any>): String {
         super.aries_selector_js(fields, map)
@@ -173,6 +193,16 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
         return  resolveBodyBySpring(body,finalmap)
     }
 
+    private fun getRealFieldName(it: JavaField): String {
+        var valueField = it.fieldName
+
+        //            select型
+        if (it.commands.any { it is SelectCommand }) {
+            valueField = getDisplayNameOfField(it)
+        }
+        return valueField
+    }
+
     private fun geInputRow(it: JavaField): String {
         var inputStr = """<input class="layui-input"  name="${it.fieldName}" placeholder="请输入 ${it.remarkName}" type="text">"""
         if (it.commands.any { it is SelectCommand }) {
@@ -202,12 +232,7 @@ var no_java = object : MMethod("${'$'}{space}", "no_java", "no_java", "", """${'
 
     private fun geTableData(commonShowFields: List<JavaField>): String {
         return generateStringBodyOfField(commonShowFields) {
-            var valueField = it.fieldName
-
-            //            select型
-            if (it.commands.any { it is SelectCommand }) {
-                valueField = getDisplayNameOfField(it)
-            }
+            var valueField = getRealFieldName(it)
 
             """
                              <td>

@@ -6,6 +6,7 @@ import com.jiangli.commons.client.generator.*
 import com.jiangli.commons.client.methodcore.MethodImplUtil
 import com.jiangli.commons.client.methodimpl.typeMapProto
 import java.sql.DriverManager
+import kotlin.reflect.KClass
 
 /**
  * out/dao/mapper,xml,model,test
@@ -20,6 +21,9 @@ fun shouldInputFieldValue(it: JavaField) = !it.nullable && it.defaultValue == nu
 
 fun List<JavaField>.getPkField(): JavaField {
     return this.first { it.isPk == true }
+}
+fun List<JavaField>.hasCommand(cmd:KClass<*>): Boolean {
+    return this.any { it.commands.any { cmd.isInstance(it) } }
 }
 
 fun List<JavaField>.getPkFieldColumn(): String {
@@ -265,6 +269,11 @@ fun parseCommands(javaField: JavaField) {
             //            批量查询条件
             if (cmd == "QUERY_IN") {
                 javaField.commands.add(QueryInCommand(cmd))
+            }
+
+            //            排序
+            if (cmd == "SORT") {
+                javaField.commands.add(SortCommand(cmd))
             }
 
             //            下拉框
