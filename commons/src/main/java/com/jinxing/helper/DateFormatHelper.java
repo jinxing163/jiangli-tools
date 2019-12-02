@@ -1,6 +1,6 @@
 package com.jinxing.helper;
 
-import org.apache.commons.lang3.StringUtils;
+import com.alibaba.druid.util.StringUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,12 +16,13 @@ import java.util.Date;
 public class DateFormatHelper {
 
 
+
     public enum Format {
 
         /** 日期格式 */
-        YYYY_MM_DD("yyyy-MM-dd", "年月日"),
-        YYYY_MM_DD_HH_MM("yyyy-MM-dd HH:mm", "年月日时分"),
-        YYYY_MM_DD_HH_MM_SS("yyyy-MM-dd HH:mm:ss", "年月日时分秒"),;
+        YEAR_MM_DD("yyyy-MM-dd", "年月日"),
+        YEAR_MM_DD_HH_MM("yyyy-MM-dd HH:mm", "年月日时分"),
+        YEAR_MM_DD_HH_MM_SS("yyyy-MM-dd HH:mm:ss", "年月日时分秒"),;
         private String code;
         private String declare;
 
@@ -100,7 +101,7 @@ public class DateFormatHelper {
         if (format != null) {
             return format;
         } else if (StringUtils.isEmpty(value)) {
-            return Format.YYYY_MM_DD_HH_MM_SS;
+            return Format.YEAR_MM_DD_HH_MM_SS;
         }
 
         int len1 = 10, len2 = 16, len3 = 19;
@@ -108,15 +109,15 @@ public class DateFormatHelper {
 
         if (trimValue.length() >= len1 && trimValue.length() < len2) {
             //格式：年月日
-            return Format.YYYY_MM_DD;
+            return Format.YEAR_MM_DD;
         } else if (trimValue.length() >= len2 && trimValue.length() < len3) {
             //格式：年月日
-            return Format.YYYY_MM_DD_HH_MM;
+            return Format.YEAR_MM_DD_HH_MM;
         } else if (trimValue.length() >= len3) {
-            return Format.YYYY_MM_DD_HH_MM_SS;
+            return Format.YEAR_MM_DD_HH_MM_SS;
         }
 
-        return Format.YYYY_MM_DD_HH_MM_SS;
+        return Format.YEAR_MM_DD_HH_MM_SS;
     }
 
     public static Date calculateAfterTime(Unit unit, Long timeInMillis, Integer number) {
@@ -183,8 +184,8 @@ public class DateFormatHelper {
 
     public static void main(String[] args) throws ParseException {
         Date date = calculateAfterTime(Unit.UNIT_SECONDS, null, 3);
-        System.out.println("now:" + DateToString(new Date(), Format.YYYY_MM_DD_HH_MM_SS));
-        System.out.println("after:" + DateToString(date, Format.YYYY_MM_DD_HH_MM_SS));
+        System.out.println("now:" + DateToString(new Date(), Format.YEAR_MM_DD_HH_MM_SS));
+        System.out.println("after:" + DateToString(date, Format.YEAR_MM_DD_HH_MM_SS));
     }
 
 
