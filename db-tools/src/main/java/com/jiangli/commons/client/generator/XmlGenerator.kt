@@ -1,9 +1,6 @@
 package com.jiangli.commons.client.generator
 
-import com.jiangli.commons.client.model.JavaField
-import com.jiangli.commons.client.model.QueryInCommand
-import com.jiangli.commons.client.model.dbFieldsExists
-import com.jiangli.commons.client.model.getQueryInOfField
+import com.jiangli.commons.client.model.*
 import com.jiangli.doc.mybatis.SPACE
 
 /**
@@ -20,6 +17,7 @@ fun generateMapperXml(tableName:String,pkg:String,javaName:String,fields:List<Ja
 
     val idField = fields.first { it.isPk }.fieldName
     val idColumn = fields.first { it.isPk }.columnName
+    val sortField = fields.firstOrNull { it.commands.any { it is SortCommand } }
 
     fun mustInput(f: JavaField):Boolean{
         return !f.nullable && f.defaultValue == null
@@ -92,6 +90,18 @@ fun generateMapperXml(tableName:String,pkg:String,javaName:String,fields:List<Ja
     //    println(fields.sortedBy {mustInput(it)})
     //    println(fields)
 
+
+    var sortByStr = """
+ORDER BY $idColumn DESC
+    """.trimIndent()
+
+    if (sortField != null) {
+        sortByStr = """
+ORDER BY ${sortField.columnName} ASC,$idColumn DESC
+    """.trimIndent()
+    }
+
+
     return """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
@@ -112,7 +122,7 @@ $includes
                  open="(" separator="," close=")">
             #{item}
         </foreach>
-        ORDER BY $idColumn DESC
+        $sortByStr
     </select>
 
     <!-- 查单个 -->
@@ -149,7 +159,7 @@ $includes
      <!-- 查全部 -->
     <select id="listAll" resultType="${pkg}.model.${javaName}">
         SELECT <include refid="fields"/>  FROM $tableName WHERE IS_DELETED=0
-        ORDER BY $idColumn DESC
+        $sortByStr
     </select>
 
     <!-- 表字段 -->
@@ -162,7 +172,7 @@ $includes
     <select id="listByDto" resultType="${pkg}.model.${javaName}">
         SELECT <include refid="fields"/>  FROM $tableName WHERE
         <include refid="pageCondition" />
-        ORDER BY $idColumn DESC
+        $sortByStr
         LIMIT #{offset},#{pageSize}
     </select>
     <!-- 条件count -->
@@ -177,7 +187,7 @@ $includes
     //    <!-- 查列表 -->
     //    <select id="list" resultType="${pkg}.model.${javaName}">
     //    SELECT <include refid="fields"/>  FROM $tableName WHERE IS_DELETED=0  AND COURSE_ID = #{courseId}
-    //    ORDER BY CREATE_TIME DESC
+    //    $sortByStr
     //    </select>
 
 
