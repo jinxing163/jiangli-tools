@@ -35,12 +35,13 @@ fun main(args: Array<String>) {
 //    驼峰式 TBL_USER -> TblUser
     val JAVA_NAME = tblNameToCamel(TBL_NAME)
 //    或写死
-//    val JAVA_NAME = "ModuleDetails"
+//    val JAVA_NAME = "AnswerResult"
 
     //     * 配置正确的aries-server项目后，生成的java、sql文件会自动拷贝至相应项目路径
     //     * 配置不正确也没关系，在本项目的target/sql_client_tools能找到生成文件，手动拷贝到项目路径即可
-        val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-server"
-    //    val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-erp-server"
+//        val ARIES_SERVER_SRC_PATH = "E:\\idea_zhishi_workSpace_master\\aries-survey"
+//        val ARIES_SERVER_SRC_PATH = "D:\\create_mvc\\outpath"
+    val ARIES_SERVER_SRC_PATH = "E:\\idea_zhishi_workSpace\\aries-server"
 //    val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-server12312"
     //    val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-live-api-server"
     //    val ARIES_SERVER_SRC_PATH = "C:\\projects\\org-server"
