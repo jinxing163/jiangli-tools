@@ -1,6 +1,7 @@
 package com.jinxing.helper;
 
-import org.apache.commons.collections.CollectionUtils;
+
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;

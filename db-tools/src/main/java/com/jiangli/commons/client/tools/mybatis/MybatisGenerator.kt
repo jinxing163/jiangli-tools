@@ -15,8 +15,8 @@ import java.io.File
 import java.sql.DriverManager
 
 
-//var OVERWRITE_OK_BTN:Boolean?=null
-var OVERWRITE_OK_BTN:Boolean?=true
+var OVERWRITE_OK_BTN:Boolean?=null
+//var OVERWRITE_OK_BTN:Boolean?=true
 
 fun main(args: Array<String>) {
     /////////////START-OF-CONFIG//////////////////
@@ -26,7 +26,7 @@ fun main(args: Array<String>) {
 //    val TBL_NAME = "TBL_COMPANY_SHARE_STU"
 //    val TBL_NAME = "TBL_WHITE_LIST"
 //    val TBL_NAME = "TBL_COMMON_CATEGORY_ITEMS"
-    val TBL_NAME = "TBL_COMPANY"
+    val TBL_NAME = "FLOWERS_SYSTEM"
 //    val TBL_NAME = "TBL_MENU"
 //    val TBL_NAME = "TBL_USER"
 
@@ -39,7 +39,7 @@ fun main(args: Array<String>) {
     //     * 配置不正确也没关系，在本项目的target/sql_client_tools能找到生成文件，手动拷贝到项目路径即可
 //        val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-server"
 //        val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-erp-server"
-    val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-server12312"
+    val ARIES_SERVER_SRC_PATH = "E:\\idea_zhishi_workSpace\\aries-server"
     //    val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-live-api-server"
     //    val ARIES_SERVER_SRC_PATH = "C:\\projects\\org-server"
     //////////////////////////////////////////////
