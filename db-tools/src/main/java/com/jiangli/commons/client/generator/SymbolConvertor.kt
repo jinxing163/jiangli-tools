@@ -70,3 +70,46 @@ fun resolveBodyBySpring(body:String,map:Map<out Any,out Any>): String {
     return realBody
 }
 
+val firstCommonSymbol = arrayOf(" ","：",":",",","，", "（" ,"（","(","【","[")
+fun untilFirstSymbol(remark: String, vararg strs:String? = firstCommonSymbol): String {
+    strs.forEach {
+        var c = it
+        val indexOfFirst = remark.indexOf(c!!)
+
+        if (indexOfFirst > 0) {
+            return remark.substring(0,indexOfFirst)
+        }
+    }
+
+    return remark
+}
+
+
+val splitCommonSymbol = listOf(",","，",":","：","-","——")
+
+//0：否  -> 0 to 否
+fun splitTextByCommonSymbol(remark: String): Pair<String,String> {
+    splitCommonSymbol.forEach {
+        val split = remark.split(it)
+        if (split.size > 1) {
+            return split[0] to split[1]
+        }
+    }
+    return "-1" to remark
+}
+
+//0否  -> 0 to 否
+fun splitTextByFirstNumber(remark: String): Pair<String,String> {
+    val groupValues = Regex("^\\d+").findAll(remark)
+    groupValues.forEach {
+        var n = it.groupValues[0]
+
+        return n to remark.substring(n.length)
+    }
+
+    return "-1" to remark
+}
+
+fun main(args: Array<String>) {
+    println(untilFirstSymbol("目标类型（1自定义菜单）"))
+}

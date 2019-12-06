@@ -15,34 +15,31 @@ import java.io.File
 import java.sql.DriverManager
 
 
-
-var OVERWRITE_OK_BTN:Boolean?=null
-//var OVERWRITE_OK_BTN:Boolean?=true
+//var OVERWRITE_OK_BTN:Boolean?=null
+var OVERWRITE_OK_BTN:Boolean?=true
 
 fun main(args: Array<String>) {
     /////////////START-OF-CONFIG//////////////////
     //aries
     val DB_URL = "jdbc:mysql://192.168.222.8:3306?user=root&password=ablejava"
 
-//    val TBL_NAME = "TBL_DAILY_PUSH"
-//    val TBL_NAME = "TBL_COMMON_CATEGORY"
+//    val TBL_NAME = "TBL_COMPANY_SHARE_STU"
+//    val TBL_NAME = "TBL_WHITE_LIST"
 //    val TBL_NAME = "TBL_COMMON_CATEGORY_ITEMS"
-//    val TBL_NAME = "TBL_COMPANY"
-    val TBL_NAME = "TBL_APPLY_OPERATOR"
+    val TBL_NAME = "TBL_COMPANY"
 //    val TBL_NAME = "TBL_MENU"
 //    val TBL_NAME = "TBL_USER"
 
 //    驼峰式 TBL_USER -> TblUser
     val JAVA_NAME = tblNameToCamel(TBL_NAME)
 //    或写死
-//    val JAVA_NAME = "AnswerResult"
+//    val JAVA_NAME = "ModuleDetails"
 
     //     * 配置正确的aries-server项目后，生成的java、sql文件会自动拷贝至相应项目路径
     //     * 配置不正确也没关系，在本项目的target/sql_client_tools能找到生成文件，手动拷贝到项目路径即可
-//        val ARIES_SERVER_SRC_PATH = "E:\\idea_zhishi_workSpace_master\\aries-survey"
-//        val ARIES_SERVER_SRC_PATH = "D:\\create_mvc\\outpath"
-    val ARIES_SERVER_SRC_PATH = "E:\\idea_zhishi_workSpace\\aries-server"
-//    val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-server12312"
+//        val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-server"
+//        val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-erp-server"
+    val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-server12312"
     //    val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-live-api-server"
     //    val ARIES_SERVER_SRC_PATH = "C:\\projects\\org-server"
     //////////////////////////////////////////////
@@ -257,6 +254,8 @@ fun main(args: Array<String>) {
 
             ,"dtoClsName" to modelName
             ,"serviceName" to nameToCamel(mapperClsName)
+
+            ,"implType" to MethodImplUtil.IMPL_SERVICE
     )
     val serviceImplJava = generateFile(
             generateCls(
@@ -291,6 +290,8 @@ fun main(args: Array<String>) {
 
             ,"dtoClsName" to dtoName
             ,"serviceName" to nameToCamel(serviceClsName)
+
+            ,"implType" to MethodImplUtil.IMPL_OPEN_SERVICE
     )
     val openServiceImplJava = generateFile(
             generateCls(
@@ -340,6 +341,8 @@ fun main(args: Array<String>) {
 
             ,"dtoClsName" to modelName
             ,"serviceName" to nameToCamel(mapperClsName)
+
+            ,"implType" to MethodImplUtil.IMPL_XML
     )
     val mapperTestJava = generateFile(
             generateCls(
@@ -365,6 +368,8 @@ fun main(args: Array<String>) {
 
             ,"dtoClsName" to dtoName
             ,"serviceName" to nameToCamel(serviceClsName)
+
+            ,"implType" to MethodImplUtil.IMPL_XML
     )
     val serviceTestJava = generateFile(
             generateCls(
@@ -389,6 +394,8 @@ fun main(args: Array<String>) {
 
             ,"dtoClsName" to openDtoName
             ,"serviceName" to nameToCamel(openServiceClsName)
+
+            ,"implType" to MethodImplUtil.IMPL_XML
     )
     val openTestJava = generateFile(
             generateCls(
@@ -507,7 +514,7 @@ fun main(args: Array<String>) {
             , "beans-dubbo-consumer-$lastPkgName.xml"
     )
 
-//controller
+    //controller
     val webControllerPkg = "com.zhihuishu.aries.web.${lastPkgName}.controller"
     val webControllerClass = "${JAVA_NAME}Controller"
     val webControllerSuperCls = "GlobalController"
@@ -525,8 +532,22 @@ fun main(args: Array<String>) {
             ,"serviceCls" to openServiceClsName
     )
     val webControllerImplJava = generateFile(
-            MethodImplUtil.resolveEx(webControllerImplMap, MethodImplType.aries_controller,list)
-            , OUTPUTPATH
+            generateCls(
+                    webControllerPkg
+                    , "$DESC controller"
+                    , webControllerClass
+                    , null
+                    , pend(mutableListOf(), pageRecordsCls, openDtoCls,openapiCls,getProtoFileBody("web_controller\\import.txt"))
+                    , pend(mutableListOf(), "Logger logger = LoggerFactory.getLogger(getClass())",resourceField(openServiceClsName), resourceField("UserOpenService"), resourceField("ICompanyOpenService","companyOpenService"))
+                    , arrayListOf()
+                    , webControllerSuperCls
+                    , arrayListOf("@Controller","@RequestMapping(\"/${nameToCamel(JAVA_NAME)}\")")
+                    , pend(
+                    mutableListOf()
+                    , MethodImplUtil.resolveEx(webControllerImplMap, MethodImplType.aries_controller,list)
+                    , resolveBodyBySpring(getProtoFileBody("web_controller\\method.txt"),webControllerImplMap)
+                    )
+            ), OUTPUTPATH
             , "web"
             , "aries"
             , "$webControllerClass.java"
@@ -551,13 +572,13 @@ fun main(args: Array<String>) {
             MethodImplUtil.resolveEx(webAssectsMap, MethodImplType.aries_crud_js,list), OUTPUTPATH
             , "web"
             , "aries"
-            , "${webControllerClass}CRUD.js"
+            , "${JAVA_NAME}CRUD.js"
     )
     generateFile(
             MethodImplUtil.resolveEx(webAssectsMap, MethodImplType.aries_selector_js,list), OUTPUTPATH
             , "web"
             , "aries"
-            , "${webControllerClass}SELECTOR.js"
+            , "${JAVA_NAME}SELECTOR.js"
     )
 
     /////////////END-OF-web层//////////////////

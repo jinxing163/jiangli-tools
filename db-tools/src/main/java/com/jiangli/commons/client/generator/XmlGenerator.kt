@@ -1,8 +1,7 @@
 package com.jiangli.commons.client.generator
 
+import com.jiangli.commons.client.model.*
 import com.jiangli.doc.mybatis.SPACE
-import com.jiangli.commons.client.model.JavaField
-import com.jiangli.commons.client.model.dbFieldsExists
 
 /**
  *
@@ -18,6 +17,7 @@ fun generateMapperXml(tableName:String,pkg:String,javaName:String,fields:List<Ja
 
     val idField = fields.first { it.isPk }.fieldName
     val idColumn = fields.first { it.isPk }.columnName
+    val sortField = fields.firstOrNull { it.commands.any { it is SortCommand } }
 
     fun mustInput(f: JavaField):Boolean{
         return !f.nullable && f.defaultValue == null
@@ -37,25 +37,70 @@ fun generateMapperXml(tableName:String,pkg:String,javaName:String,fields:List<Ja
     val pageConList = StringBuilder()
     val max_idx =   fields.filter { !it.isPk }.lastIndex
 
-    fields.sortedBy {mustInput(it)}.filter { !it.isPk } .forEachIndexed { idx, it ->
-        var suffix = if(idx == max_idx) "" else ","
+//    保存、修改字段
+    val sortedFields = fields.sortedBy { mustInput(it) }
+    sortedFields.filter { !it.isPk } .forEachIndexed { idx, it ->
+        var suffix =  ","
+//        var suffix = if(idx == max_idx) "" else ","
 
         //        println("$idx / ${fields.lastIndex}")
 
-        if(mustInput(it)){
-            saveColList.append("\r\n$SPACE$SPACE$SPACE${it.columnName}${suffix} ")
-            saveValList.append("\r\n$SPACE$SPACE$SPACE#{${it.fieldName}}${suffix} ")
-        } else {
-            saveColList.append("\r\n$SPACE$SPACE$SPACE<if test=\"${it.fieldName} != null\">${it.columnName}${suffix} </if>")
-            saveValList.append("\r\n$SPACE$SPACE$SPACE<if test=\"${it.fieldName} != null\">#{${it.fieldName}}${suffix} </if>")
+//        特殊情况
+        if (it.fieldName != "isDeleted") {
+            if(mustInput(it)){
+                saveColList.append("\r\n$SPACE$SPACE$SPACE${it.columnName}${suffix} ")
+                saveValList.append("\r\n$SPACE$SPACE$SPACE#{${it.fieldName}}${suffix} ")
+            } else {
+                saveColList.append("\r\n$SPACE$SPACE$SPACE<if test=\"${it.fieldName} != null\">${it.columnName}${suffix} </if>")
+                saveValList.append("\r\n$SPACE$SPACE$SPACE<if test=\"${it.fieldName} != null\">#{${it.fieldName}}${suffix} </if>")
+            }
+        }
+    }
+
+//    条件查询字段
+    sortedFields .forEachIndexed { idx, it ->
+        var extraCondition = ""
+
+        if (it.fieldCls == "String") {
+            extraCondition = "and dto.${it.fieldName} != ''"
         }
 
-        pageConList.append("\r\n$SPACE$SPACE<if test=\"dto.${it.fieldName} != null\">AND ${it.columnName} = #{dto.${it.fieldName}} </if>")
+        pageConList.append("\r\n$SPACE$SPACE<if test=\"dto.${it.fieldName} != null $extraCondition \">AND ${it.columnName} = #{dto.${it.fieldName}} </if>")
 
+        //        QUERY_IN
+        if (it.commands.any { it is QueryInCommand }) {
+            val queryInOfField = getQueryInOfField(it)
+
+            pageConList.append("""
+
+        <if test="dto.${queryInOfField} != null and dto.${queryInOfField}.size > 0">AND ${it.columnName} IN
+             <foreach collection="dto.${queryInOfField}" index="index" item="item"
+                     open="(" separator="," close=")">
+                #{item}
+             </foreach>
+        </if>""".trimMargin())
+        }
     }
+
+
+//      直接赋值
+    saveColList.append("\r\n$SPACE$SPACE$SPACE IS_DELETED")
+    saveValList.append("\r\n$SPACE$SPACE$SPACE 0")
 
     //    println(fields.sortedBy {mustInput(it)})
     //    println(fields)
+
+
+    var sortByStr = """
+ORDER BY $idColumn DESC
+    """.trimIndent()
+
+    if (sortField != null) {
+        sortByStr = """
+ORDER BY ${sortField.columnName} ASC,$idColumn DESC
+    """.trimIndent()
+    }
+
 
     return """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
@@ -77,7 +122,7 @@ $includes
                  open="(" separator="," close=")">
             #{item}
         </foreach>
-        ORDER BY $idColumn DESC
+        $sortByStr
     </select>
 
     <!-- 查单个 -->
@@ -114,7 +159,7 @@ $includes
      <!-- 查全部 -->
     <select id="listAll" resultType="${pkg}.model.${javaName}">
         SELECT <include refid="fields"/>  FROM $tableName WHERE IS_DELETED=0
-        ORDER BY $idColumn DESC
+        $sortByStr
     </select>
 
     <!-- 表字段 -->
@@ -127,7 +172,7 @@ $includes
     <select id="listByDto" resultType="${pkg}.model.${javaName}">
         SELECT <include refid="fields"/>  FROM $tableName WHERE
         <include refid="pageCondition" />
-        ORDER BY $idColumn DESC
+        $sortByStr
         LIMIT #{offset},#{pageSize}
     </select>
     <!-- 条件count -->
@@ -142,7 +187,7 @@ $includes
     //    <!-- 查列表 -->
     //    <select id="list" resultType="${pkg}.model.${javaName}">
     //    SELECT <include refid="fields"/>  FROM $tableName WHERE IS_DELETED=0  AND COURSE_ID = #{courseId}
-    //    ORDER BY CREATE_TIME DESC
+    //    $sortByStr
     //    </select>
 
 

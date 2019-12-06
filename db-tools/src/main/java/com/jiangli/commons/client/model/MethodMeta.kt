@@ -5,14 +5,15 @@ import com.jiangli.commons.client.methodcore.MethodImplUtil
 
 
 val NOT_INCLUDE_METHOD = "_x_not_Include_Method_xx_x_"
+val NOT_REGISTER = false
 
 enum class MethodImplType {
-    inf, test, impl,app_remote,app_controller,app_showdoc,aries_controller,aries_jsp,aries_crud_js,aries_selector_js
+    inf, test, impl,transToOpen,app_remote,app_controller,app_showdoc,aries_controller,aries_jsp,aries_crud_js,aries_selector_js
 }
 val test_common_signature = "${'$'}{_this_indent}public void test_${'$'}{_this_name}()"
 open class MMethod {
     var indent: String? = null //前置空格
-    var name: String? = null //方法名
+    open var name: String? = null //方法名
     var nameCN: String? = null //方法中文名
     var variableName: String? = null //变量名
     var signature: String? = null //方法签名
@@ -22,14 +23,16 @@ open class MMethod {
 
     }
 
-    constructor(indent: String?, name: String?, nameCN: String?, variableName: String?, body: String?) {
+    constructor(indent: String?, name: String?, nameCN: String?, variableName: String?, body: String?, register:Boolean?=true) {
         this.indent = indent
         this.name = name
         this.nameCN = nameCN
         this.variableName = variableName
         this.body = body
 
-        MethodImplUtil.add(this)
+        if (register!=null && register) {
+            MethodImplUtil.add(this)
+        }
     }
 
     fun gets(map: MutableMap<Any, Any>, f: String): String {

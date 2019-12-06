@@ -25,7 +25,7 @@ ${'$'}{_this_signature}${'$'}{impl.${'$'}{_this_name}:{}}
         return """{
         ModelAndView modelAndView = new ModelAndView("${map["lastPkgName"]}/${map["path"]}/$webReqPath");
 
-        //Boolean flag = super.controlJumpByPermission(PermissionEnum.PARTNER_MANAGE, modelAndView, super.getLoginUserId());
+        Boolean flag = super.controlJumpByPermission(PermissionEnum.OPERATE_MODULE, modelAndView, super.getLoginUserId());
         //if (!flag) {//没权限
         //    return modelAndView;
         //}

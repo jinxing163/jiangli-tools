@@ -1,12 +1,11 @@
 package com.jiangli.doc.mybatis
 
+import com.jiangli.commons.NameUtil
+import com.jiangli.commons.PathUtil
 import com.jiangli.commons.client.generator.concatPath
 import com.jiangli.commons.client.generator.nameToCamel
 import com.jiangli.commons.client.methodcore.MethodImplUtil
-import com.jiangli.commons.client.model.JavaField
-import com.jiangli.commons.client.model.MethodImplType
-import com.jiangli.commons.NameUtil
-import com.jiangli.commons.PathUtil
+import com.jiangli.commons.client.model.*
 import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileInputStream
@@ -20,12 +19,12 @@ val IMPL_SERIAL = arrayListOf("java.io.Serializable")
 
 val ANNO_MAPPER = arrayListOf("@Repository")
 
-val IMPORT_MAPPER = arrayListOf("java.util.List","org.apache.ibatis.annotations.Param","org.springframework.stereotype.Repository")
-val IMPORT_SERVICE = arrayListOf("java.util.List")
-val IMPORT_OPENAPI = arrayListOf("java.util.List")
+val IMPORT_MAPPER = arrayListOf("java.util.List","java.util.Map","org.apache.ibatis.annotations.Param","org.springframework.stereotype.Repository")
+val IMPORT_SERVICE = arrayListOf("java.util.List","java.util.Map")
+val IMPORT_OPENAPI = arrayListOf("java.util.List","java.util.Map")
 
-val IMPORT_SERVICE_IMPL = arrayListOf("java.util.List","java.util.Date","org.springframework.beans.factory.annotation.Autowired","org.springframework.stereotype.Service")
-val IMPORT_OPENAPI_IMPL = arrayListOf("java.util.List","java.util.ArrayList","java.util.Date","org.springframework.beans.factory.annotation.Autowired")
+val IMPORT_SERVICE_IMPL = arrayListOf("java.util.List","java.util.Map","java.util.LinkedHashMap","java.util.Date","org.springframework.beans.factory.annotation.Autowired","org.springframework.stereotype.Service")
+val IMPORT_OPENAPI_IMPL = arrayListOf("java.util.List","java.util.Map","java.util.ArrayList","java.util.Date","org.springframework.beans.factory.annotation.Autowired")
 
 val IMPORT_TEST_COMMON = arrayListOf("org.junit.Test","org.springframework.beans.factory.annotation.Autowired","org.junit.runner.RunWith","org.springframework.boot.test.context.SpringBootTest","com.zhihuishu.aries.BaseTest","java.util.Arrays","java.util.List","java.text.SimpleDateFormat")
 
@@ -49,6 +48,8 @@ fun annotationField(anno:String,clsName: String,va:String? = null):String {
     return "$anno\r\n${SPACE}private $clsName $varName"
 }
 
+
+
 fun generateCls(pkg:String, desc:String, clsName:String, fields:List<JavaField>?, extraImports:List<String>?= arrayListOf(), extraField:List<String>?= arrayListOf(), implClses:List<String>?= arrayListOf(), superClsName:String?=null, extraAnnos:List<String>?= arrayListOf(), extraMethods:List<String>?= arrayListOf()):String {
     val fieldList =  StringBuilder()
     val importList = StringBuilder()
@@ -58,11 +59,37 @@ fun generateCls(pkg:String, desc:String, clsName:String, fields:List<JavaField>?
     val annoList =  StringBuilder()
     val totalImport = mutableSetOf<String>()
 
+//    可能包含附加字段
+    val fieldsIncludeSynthetic :MutableList<JavaField> = mutableListOf()
+    fields?.let {
+        fieldsIncludeSynthetic.addAll(fields)
+    }
+
+//    生成所有字段
+    fields?.forEach {
+        if (it.generateStr) {
+            val copy = it.copy()
+            copy.fieldName = getDisplayNameOfField(copy)
+            copy.fieldCls = "String"
+            copy.generateStr = false
+            copy.remark = copy.remarkName+" 显示文字"
+            fieldsIncludeSynthetic.add(copy)
+        }
+
+        if (it.commands.any { it is QueryInCommand }) {
+            val copy = it.copy()
+            copy.fieldName = getQueryInOfField(copy)
+            copy.fieldCls = "List<${it.fieldCls}>"
+            copy.fieldClsImport = "java.util.List"
+            copy.generateStr = false
+            copy.remark = copy.remarkName+" 批量查询字段"
+            fieldsIncludeSynthetic.add(copy)
+        }
+    }
+
+
     //import
     extraImports?.forEach { totalImport.add(it) }
-    totalImport.forEach {
-        importList.append("import $it;\r\n")
-    }
 
     //注解
     extraAnnos?.forEach {
@@ -94,7 +121,7 @@ fun generateCls(pkg:String, desc:String, clsName:String, fields:List<JavaField>?
     }
 
     //fields from list
-    fields?.forEach {
+    fieldsIncludeSynthetic?.forEach {
         fieldList.append("${SPACE}private ${it.fieldCls} ${it.fieldName};//${it.remark}\r\n")
 
         it.fieldClsImport?.let {
@@ -107,8 +134,8 @@ fun generateCls(pkg:String, desc:String, clsName:String, fields:List<JavaField>?
     val totalMethods = mutableListOf<String>()
 
     //getter & setter
-    fields?.let {
-        fields.forEach {
+    fieldsIncludeSynthetic?.let {
+        fieldsIncludeSynthetic.forEach {
             val setter = """
     public void set${NameUtil.getCapitalName(it.fieldName)}(${it.fieldCls} ${it.fieldName}) {
         this.${it.fieldName} = ${it.fieldName};
@@ -123,7 +150,7 @@ fun generateCls(pkg:String, desc:String, clsName:String, fields:List<JavaField>?
     }
 
     //toString
-    fields?.let {
+    fieldsIncludeSynthetic?.let {
         val toStrPrefix="""
     @Override
     public String toString() {
@@ -134,7 +161,7 @@ fun generateCls(pkg:String, desc:String, clsName:String, fields:List<JavaField>?
     }
 """
         var sb = StringBuilder()
-        fields.forEachIndexed{
+        fieldsIncludeSynthetic.forEachIndexed{
             idx,it->
                 sb.append("""                "${if(idx!=0) "," else ""}${it.fieldName}=" + ${it.fieldName} + """)
                 sb.append("\r\n")
@@ -152,6 +179,10 @@ fun generateCls(pkg:String, desc:String, clsName:String, fields:List<JavaField>?
         }
     }
 
+    totalImport.forEach {
+        importList.append("import $it;\r\n")
+    }
+
     return """
 package $pkg;
 $importList
@@ -167,14 +198,6 @@ $methodsList
 """
 }
 
-fun appendComment(sb:StringBuilder,txt:String) {
-    sb.append("${SPACE}/**\r\n")
-    sb.append("${SPACE} * $txt\r\n")
-    sb.append("${SPACE} */\r\n")
-}
-fun appendEnter(sb:StringBuilder) {
-    sb.append("${SPACE}\r\n")
-}
 
 fun generateInterface(pkg:String, desc:String, clsName:String, useWrap:Boolean?=false, objName:String, extraImports:List<String>?= arrayListOf(), extraAnnos:List<String>?= arrayListOf(), implClses:List<String>?= arrayListOf(), methodCtrl:MutableMap< Any, Any>?= mutableMapOf()):String {
     val annoList =  StringBuilder()

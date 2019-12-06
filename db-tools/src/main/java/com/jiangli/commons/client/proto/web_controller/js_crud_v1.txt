@@ -2,26 +2,20 @@ function ${javaName}CRUD(opt) {
     var $add_clicker = opt.add_clicker;//绑定点击事件的jquery对象
     var $refresh_clicker = opt.refresh_clicker;//绑定点击事件的jquery对象
     var $reset_clicker = opt.reset_clicker;//绑定点击事件的jquery对象
-    var $sort_clicker = opt.sort_clicker;//绑定点击事件的jquery对象
     var bodyId = opt.bodyId || 'crudBody';//渲染列表的id
-    var sortBodyId = opt.sortBodyId || 'sortCrudBody';//渲染列表的id
     var createform = opt.createform || 'createForm';
     var queryForm =  opt.queryForm || 'queryForm';
     var pageDivId =  opt.pageDivId || 'pageDivId';
     var moduleCn = '${description}';
     var relaModulePath = '/${path}';
-    var contentMode =  1;//内容展示模式 1普通 2排序
-    var prevContentMode =  1;//前一次的内容展示模式
-    var prevBtnStr = "";//前一次的内容展示模式
 
     ${selectFieldConfigJs}
 
-    var INITPAGESIZE = 10
+
     //初始化分页参数
     var PageData = {
-        "pageSize": INITPAGESIZE,
-        "pageIndex": 1,
-        "limits": [INITPAGESIZE,3*INITPAGESIZE,5*INITPAGESIZE],
+        "pageSize": 10,
+        "pageIndex": 1
     }
 
     //function
@@ -38,63 +32,6 @@ function ${javaName}CRUD(opt) {
 
         clearOrInjectForm(queryForm);
         refreshList();
-    });
-    $sort_clicker.click(function () {
-        //更改模式标记
-        if (contentMode != 2) {
-            prevContentMode = contentMode;
-            contentMode = 2;
-            prevBtnStr = $sort_clicker.text();
-        } else {
-            contentMode = prevContentMode;
-        }
-
-        //绑定按钮事件
-        if (contentMode == 2) {
-            //进入排序模式
-            PageData.pageIndex = 1;
-            PageData.pageSize = 999;
-            $sort_clicker.text("保存"+prevBtnStr);
-        }  else {
-            //保存逻辑
-            PageData.pageIndex = 1;
-            PageData.pageSize = INITPAGESIZE;
-            $sort_clicker.text(prevBtnStr);
-
-            var ids = convertObjArr(convertJObjToArr($("#"+sortBodyId).find("ul"),"_data"),function (one) {
-                return one.id;
-            });
-            console.log(ids);
-
-            var dt = getFormData(queryForm);
-            dt.pageIndex = PageData.pageIndex - 1;
-            dt.pageSize = PageData.pageSize;
-            dt.sortIds = ids;
-
-            $.ajax({
-                url: basePath + relaModulePath + "/doSort",
-                type: "POST",
-                data: dt,
-                async:false,
-                success: function (obj) {
-                    Message.successTips('已完成排序')
-                },
-                error: function () {
-                    Message.successTips('排序失败')
-                }
-            });
-        }
-
-        refreshList();
-    });
-
-    //排序
-    Sortable.create($("#"+sortBodyId)[0], {
-        group: 'omega',
-        animation: 150, //动画参数
-        forceFallback: true,//如果设置为true时，将不使用原生的html5的拖放，可以修改一些拖放中元素的样式等；
-        onEnd: function (evt) { //拖拽完毕之后发生该事件
-        }
     });
 
     //验证
@@ -214,7 +151,6 @@ function ${javaName}CRUD(opt) {
         var dt = getFormData(queryForm);
         dt.pageIndex = PageData.pageIndex - 1;
         dt.pageSize = PageData.pageSize;
-        dt.contentMode = contentMode;
 
         $.ajax({
             url: basePath + relaModulePath + "/doQueryList",
@@ -228,33 +164,12 @@ function ${javaName}CRUD(opt) {
             success: function (obj) {
                 console.log(obj);
 
-                if (contentMode == 1) {
-                    setContentView(1);
-                    drawRowOfTableMode(obj);
-                } else if (contentMode == 2) {
-                    setContentView(2);
-                    drawRowOfSortMode(obj);
-                }
+                var data = obj.records;
 
-            },
-            error: function () {
-                appendEleData(bodyId, [])
-            }
-        });
-    }
+                appendEleData(bodyId, data, function (one) {
+                    one.userDto = one.userDto || {};
 
-    function setContentView(md) {
-        $("[view-mode]").hide();
-        $("[view-mode=\""+md+"\"]").show();
-    }
-
-    function drawRowOfTableMode(obj) {
-        var data = obj.records;
-
-        appendEleData(bodyId, data, function (one) {
-            one.userDto = one.userDto || {};
-
-            var $str = $(`
+                    var $str = $(`
                     <tr>
                         ${tableData}
 
@@ -266,62 +181,47 @@ function ${javaName}CRUD(opt) {
                         </td>
                     </tr>`);
 
-            //删除
-            $str.find(".deleteTr").data("_data", one);
-            $str.find(".deleteTr").click(function () {
-                var dt = $(this).data("_data");
-                deleteTr(dt);
-            });
+                    //删除
+                    $str.find(".deleteTr").data("_data", one);
+                    $str.find(".deleteTr").click(function () {
+                        var dt = $(this).data("_data");
+                        deleteTr(dt);
+                    });
 
-            //编辑
-            $str.find(".editTr").data("_data", one);
-            $str.find(".editTr").click(function () {
-                var dt = $(this).data("_data");
-                saveTr(dt);
-            });
+                    //编辑
+                    $str.find(".editTr").data("_data", one);
+                    $str.find(".editTr").click(function () {
+                        var dt = $(this).data("_data");
+                        saveTr(dt);
+                    });
 
-            return $str;
-        });
+                    return $str;
+                });
+                //分页
+                layui.use(['laypage', 'layer'], function () {
+                    var laypage = layui.laypage;
+                    laypage.render({
+                        elem: pageDivId
+                        , count: obj.totalRecords
+                        , curr: PageData.pageIndex
+                        , limit: PageData.pageSize
+                        , theme: '#1890ff'
+                        , layout: ['count', 'prev', 'page', 'next']
+                        , jump: function (obj, first) {
+                            if (!first) {
+                                var pageIndex = obj.curr;
+                                PageData.pageSize = obj.limit;
+                                PageData.pageIndex = pageIndex;
+                                refreshList();
+                            }
+                        }
+                    });
+                });
 
-
-        //分页
-        layui.use(['laypage', 'layer'], function () {
-            var laypage = layui.laypage;
-            laypage.render({
-                elem: pageDivId
-                , count: obj.totalRecords
-                , curr: PageData.pageIndex
-                , limit: PageData.pageSize
-                , limits: PageData.limits
-                , theme: '#1890ff'
-                , layout: ['count', 'prev', 'page', 'next', 'limit']
-                , jump: function (obj, first) {
-                    if (!first) {
-                        var pageIndex = obj.curr;
-                        PageData.pageSize = obj.limit;
-                        PageData.pageIndex = pageIndex;
-                        refreshList();
-                    }
-                }
-            });
-        });
-    }
-
-
-    function drawRowOfSortMode(obj) {
-        var data = obj.records;
-
-        appendEleData(sortBodyId, data, function (one) {
-            one.userDto = one.userDto || {};
-
-            var $str = $(`
-                    <ul class="dragSorting-list">
-                        <li>${sortDisplay}</li>
-                    </ul>`);
-
-            $str.data("_data",one);
-
-            return $str;
+            },
+            error: function () {
+                appendEleData(bodyId, [])
+            }
         });
     }
 }
