@@ -86,6 +86,7 @@ fun calcFieldInfo(f: JavaField) {
         "TIMESTAMP" -> "Date"
         "DATETIME" -> "Date"
         "TEXT" -> "String"
+        "LONGTEXT" -> "String"
         "DECIMAL" -> "Double"
         else -> throw Exception("未识别的type $columType")
     }

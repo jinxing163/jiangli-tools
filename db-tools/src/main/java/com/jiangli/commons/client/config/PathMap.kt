@@ -28,7 +28,9 @@ object PathMap{
         repoToPkgMap.put("db_aries_class_tools","com.zhihuishu.aries.chat.datasource")
         repoToPkgMap.put("db_aries_survey","com.zhishi.aries.survey")
         repoToPkgMap.put("db_aries_log","com.zhishi.aries.log")
-
+        repoToPkgMap.put("db_aries_study","com.zhihuishu.aries.study")
+        repoToPkgMap.put("db_aries_live","com.zhihuishu.aries.liveRoom.datasource")
+        repoToPkgMap.put("db_aries_discuss","com.zhihuishu.aries.discuss")
     }
 
     fun getLastPkgName(repo:String):String {
