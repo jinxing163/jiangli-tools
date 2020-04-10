@@ -1,0 +1,8 @@
+>>>>>>>>>>>>> 解决问题 <<<<<<<<<<<<<
+
+####### push 403
+Failed with error: unable to access 'https://github.com/jinxing163/jiangli-tools.git/': The requested URL returned error: 403
+
+解决方案 https://blog.csdn.net/wjn19921104/article/details/80176757
+git config --global http.proxy
+git config --global --unset http.proxy
