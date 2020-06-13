@@ -129,13 +129,41 @@ public class TestMain {
 
     }
 
+
+    public static void test4() {
+
+        //supplier也是是用来创建对象的，但是不同于传统的创建对象语法：new
+        Supplier<User> sup = User::new;
+
+        List<User> resultList = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+
+            //调用get()方法，此时会调用对象的构造方法，即获得到真正对象
+            User user = sup.get();
+            if(i%2 ==0) {
+                user.setName("张阿曼" + i);
+            }
+            user.setId(i);
+            resultList.add(user);
+        }
+
+
+        System.out.println("BF:"+resultList);
+
+        resultList.forEach(System.out::println);
+
+    }
+
     public static void main(String[] args) {
 //        test1();
 
 //        test2();
 
 
-        test3();
+//        test3();
+
+        test4();
+
 
     }
 

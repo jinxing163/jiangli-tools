@@ -40,6 +40,7 @@ public class TestMain {
                 user.getAge() == 15);
 
 
+
         System.out.println("testPredicate:"+testPredicate);
     }
 

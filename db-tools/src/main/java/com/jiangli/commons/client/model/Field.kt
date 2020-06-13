@@ -88,6 +88,7 @@ fun calcFieldInfo(f: JavaField) {
         "TEXT" -> "String"
         "LONGTEXT" -> "String"
         "DECIMAL" -> "Double"
+        "DOUBLE" -> "Double"
         else -> throw Exception("未识别的type $columType")
     }
     f.fieldClsImport = when (columType) {
