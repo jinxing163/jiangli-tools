@@ -34,7 +34,7 @@
         <spring.version>3.2.16.RELEASE</spring.version>
         <aspectj.version>1.7.4</aspectj.version>
         <struts2.version>2.3.24.1</struts2.version>
-        <mysql.version>5.1.30</mysql.version>
+        <mysql.version>8.0.16</mysql.version>
         <druid.version>1.0.18</druid.version>
         <cas-client.version>3.3.3</cas-client.version>
         <shiro.version>1.2.4</shiro.version>
