@@ -1,4 +1,4 @@
-package com.jinxing.helper;
+package com.jinxing.utils;
 
 
 import org.springframework.util.CollectionUtils;
