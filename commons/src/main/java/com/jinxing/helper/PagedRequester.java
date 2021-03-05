@@ -7,6 +7,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
+ * 常用批量查询
  * producer:->List<T> 生产者列表
  * srcIdAggregator:T->ID 生产者id提取器
  * requestHandler:List<ID>->Iterable<RS>  请求执行者
@@ -52,6 +53,10 @@ public class PagedRequester {
     }
 
     public static <T> Function<T, Integer> intFunction(Function<T, String> stringSupplier) {
+        return stringSupplier.andThen(PagedRequester::getInt);
+    }
+
+    public static <T> Function<T, Integer> intFunctionFromLong(Function<T, Long> stringSupplier) {
         return stringSupplier.andThen(PagedRequester::getInt);
     }
 
@@ -200,8 +205,7 @@ public class PagedRequester {
     public static <ID, RS extends Map<K, V>, K, V> Map<K, V> processPageMap(
             int pageSize,
             Supplier<List<ID>> producer,
-            Function<List<ID>, RS> requestHandler
-    ) {
+            Function<List<ID>, RS> requestHandler) {
         Map<K, V> ret = new HashMap<>();
         //Map<K,V> ret =collector.get();
 
@@ -223,9 +227,8 @@ public class PagedRequester {
     public static <ID, RS extends Iterable<K>, K> List<K> processPageList(
             int pageSize,
             Supplier<List<ID>> producer,
-            Function<List<ID>, RS> requestHandler
-    ) {
-       List<K> ret = new ArrayList<>();
+            Function<List<ID>, RS> requestHandler) {
+        List<K> ret = new ArrayList<>();
         //Map<K,V> ret =collector.get();
 
         PagedRequester.processBatch(
@@ -322,14 +325,17 @@ public class PagedRequester {
         return ret;
     }
 
+
+    /**
+     * 批量查询List
+     */
     public static <T, ID, RS> RequestResult<ID> processBatchList(
             int pageSize,
             Supplier<List<T>> producer,
             Function<T, ID> srcIdAggregator,
             Function<List<ID>, ? extends Iterable<RS>> requestHandler,
             Function<RS, ID> resultIdExtractor,
-            BiConsumer<RS, T> resultHandler
-    ) {
+            BiConsumer<RS, T> resultHandler) {
 
         return processBatch(
                 pageSize,
@@ -387,6 +393,7 @@ public class PagedRequester {
                 }
         );
     }
+
 
     public static void main(String[] args) {
         List<Long> idList = new ArrayList<>();
