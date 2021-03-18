@@ -1,12 +1,10 @@
 package com.jinxing.utils.HttpClient;
 
-/**
- * @author JinXing
- * @date 2021/3/15 15:51
- */
 
+import com.jinxing.utils.HttpClient.HttpConstant;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
@@ -30,41 +28,32 @@ public class HttpClientFactory {
 
     private static HttpClientFactory instance = null;
 
-    private HttpClientFactory()
-    {
+    private HttpClientFactory() {
     }
 
-    public synchronized static HttpClientFactory getInstance()
-    {
-        if (instance == null)
-        {
+    public synchronized static HttpClientFactory getInstance() {
+        if (instance == null) {
             instance = new HttpClientFactory();
         }
         return instance;
     }
 
 
-    public synchronized HttpClient getHttpClient()
-    {
-        HttpClient httpClient = null;
-        if (HttpConstant.IS_KEEP_ALIVE)
-        {
+    public synchronized HttpClient getHttpClient() {
+        HttpClient httpClient;
+        if (HttpConstant.IS_KEEP_ALIVE) {
             //获取长连接
             httpClient = new KeepAliveHttpClientBuilder().getKeepAliveHttpClient();
-        } else
-        {
+        } else {
             // 获取短连接
             httpClient = new HttpClientBuilder().getHttpClient();
         }
         return httpClient;
     }
 
-    public HttpPost httpPost(String httpUrl)
-    {
-        HttpPost httpPost = null;
-        httpPost = new HttpPost(httpUrl);
-        if (HttpConstant.IS_KEEP_ALIVE)
-        {
+    public HttpPost httpPost(String httpUrl) {
+        HttpPost httpPost = new HttpPost(httpUrl);
+        if (HttpConstant.IS_KEEP_ALIVE) {
             // 设置为长连接，服务端判断有此参数就不关闭连接。
             httpPost.setHeader("Connection", "Keep-Alive");
         }
@@ -72,18 +61,25 @@ public class HttpClientFactory {
     }
 
 
+    public HttpGet httpGet(String httpUrl) {
+        HttpGet http = new HttpGet(httpUrl);
+        if (HttpConstant.IS_KEEP_ALIVE) {
+            // 设置为长连接，服务端判断有此参数就不关闭连接。
+            http.setHeader("Connection", "Keep-Alive");
+        }
+        return http;
+    }
 
-    private  static class  KeepAliveHttpClientBuilder{
 
-        private  static HttpClient httpClient;
+    private static class KeepAliveHttpClientBuilder {
+
+        private static HttpClient httpClient;
 
         /**
          * 获取http长连接
          */
-        private synchronized HttpClient getKeepAliveHttpClient()
-        {
-            if (httpClient == null)
-            {
+        private synchronized HttpClient getKeepAliveHttpClient() {
+            if (httpClient == null) {
                 LayeredConnectionSocketFactory sslsf = null;
                 try {
                     sslsf = new SSLConnectionSocketFactory(SSLContext.getDefault());
@@ -91,8 +87,9 @@ public class HttpClientFactory {
                     e.printStackTrace();
                 }
 
+                assert sslsf != null;
                 Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder
-                        .<ConnectionSocketFactory> create().register("https", sslsf)
+                        .<ConnectionSocketFactory>create().register("https", sslsf)
                         .register("http", new PlainConnectionSocketFactory()).build();
                 PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
                 cm.setMaxTotal(HttpConstant.MAX_TOTAL);
@@ -102,7 +99,7 @@ public class HttpClientFactory {
                         .setConnectTimeout(HttpConstant.CONNECT_TIMEOUT)
                         .setSocketTimeout(HttpConstant.SOCKET_TIMEOUT).build();
                 // 创建连接
-                httpClient =  HttpClients.custom().setDefaultRequestConfig(requestConfig).setConnectionManager(cm).build();
+                httpClient = HttpClients.custom().setDefaultRequestConfig(requestConfig).setConnectionManager(cm).build();
             }
 
             return httpClient;
@@ -110,14 +107,14 @@ public class HttpClientFactory {
     }
 
 
-    private  static class  HttpClientBuilder{
-        private  HttpClient httpClient;
+    private static class HttpClientBuilder {
+        private HttpClient httpClient;
+
         /**
          * 获取http短连接
          */
-        private synchronized HttpClient getHttpClient()
-        {
-            if(httpClient == null){
+        private synchronized HttpClient getHttpClient() {
+            if (httpClient == null) {
                 RequestConfig requestConfig = RequestConfig.custom()
                         // 设置请求超时时间
                         .setConnectTimeout(HttpConstant.CONNECT_TIMEOUT)
