@@ -1,8 +1,6 @@
 package com.jinxing.utils.HttpClient;
 
 
-import com.jinxing.utils.HttpClient.HttpClientFactory;
-import com.jinxing.utils.HttpClient.HttpConstant;
 import org.apache.commons.collections.MapUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;

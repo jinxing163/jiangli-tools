@@ -1,7 +1,6 @@
 package com.jinxing.utils.HttpClient;
 
 
-import com.jinxing.utils.HttpClient.HttpConstant;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
