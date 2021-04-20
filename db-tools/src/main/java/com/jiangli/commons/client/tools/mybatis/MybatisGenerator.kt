@@ -27,7 +27,7 @@ fun main(args: Array<String>) {
 //    val TBL_NAME = "TBL_WHITE_LIST"
 //    val TBL_NAME = "TBL_COMMON_CATEGORY_ITEMS"
 //    val TBL_NAME = "TBL_SPECIAL_TRAINING_CAMP"
-        val TBL_NAME = "WHITE_BOARD"
+        val TBL_NAME = "INTERACTIVE_LIVE_ATTEND_USER"
 //    val TBL_NAME = "TBL_MENU"
 //    val TBL_NAME = "TBL_USER"
 
@@ -38,16 +38,17 @@ fun main(args: Array<String>) {
 
     //     * 配置正确的aries-server项目后，生成的java、sql文件会自动拷贝至相应项目路径
     //     * 配置不正确也没关系，在本项目的target/sql_client_tools能找到生成文件，手动拷贝到项目路径即可
-//            val ARIES_SERVER_SRC_PATH = "E:\\idea_zhishi_workSpace\\aries-live-api-server"
-//        val ARIES_SERVER_SRC_PATH = "E:\\idea_zhishi_workSpace\\aries-server"
-//            val ARIES_SERVER_SRC_PATH = "E:\\idea_zhishi_workSpace\\aries-erp-server"
-//            val ARIES_SERVER_SRC_PATH = "E:\\idea_zhishi_workSpace_master\\aries-survey"
-//            val ARIES_SERVER_SRC_PATH = "E:\\idea_zhishi_workSpace\\aries-base-message"
+//            val ARIES_SERVER_SRC_PATH = "D:\\workSpace\\aries-live-api-server"
+//        val ARIES_SERVER_SRC_PATH = "D:\\workSpace\\aries-server"
 
-//          val ARIES_SERVER_SRC_PATH = "E:\\idea_zhishi_workSpace\\aries-base-video"
-//        val ARIES_SERVER_SRC_PATH = "E:\\idea_zhishi_workSpace\\aries-classtools"
+//            val ARIES_SERVER_SRC_PATH = "D:\\workSpace\\aries-erp-server"
+//            val ARIES_SERVER_SRC_PATH = "D:\\workSpace_master\\aries-survey"
+//            val ARIES_SERVER_SRC_PATH = "D:\\workSpace\\aries-base-message"
+
+//          val ARIES_SERVER_SRC_PATH = "D:\\workSpace\\aries-base-video"
+//        val ARIES_SERVER_SRC_PATH = "D:\\workSpace\\aries-classtools"
 //        val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-erp-server"
-    val ARIES_SERVER_SRC_PATH = "E:\\idea_zhishi_workSpace\\aries-live-server"
+    val ARIES_SERVER_SRC_PATH = "D:\\workSpace\\aries-live-server"
 //        val ARIES_SERVER_SRC_PATH = "C:\\projects\\aries-live-api-server"
 //        val ARIES_SERVER_SRC_PATH = "C:\\projects\\org-server"
     //////////////////////////////////////////////
