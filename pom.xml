@@ -37,7 +37,7 @@
         <mysql.version>5.1.30</mysql.version>
         <druid.version>1.0.18</druid.version>
         <cas-client.version>3.3.3</cas-client.version>
-        <shiro.version>1.2.4</shiro.version>
+        <shiro.version>1.6.0</shiro.version>
         <poi.version>3.14</poi.version>
         <activemq.version>5.13.2</activemq.version>
     </properties>
